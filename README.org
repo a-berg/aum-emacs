@@ -1,0 +1,14 @@
+#+title: Aum Emacs
+
+* Motivation: /escape/ from Spacemacs
+  
+  For years, spacemacs has served me well. I have now realized, however, that it
+  has held me from developing further and truly reach the emacs enlightement.
+
+  In the comfort of predefined layers and extensive configuration, I grew lazy.
+  This in turn made me use Emacs not as the infinitely-configurable editor that
+  is, but as just another commercial editor you install a few plugins and a
+  theme in, then change the font and just use it.
+
+  This revelation means that I must embark on a journey into trascendence. May
+  RMS guide my lambdas.
