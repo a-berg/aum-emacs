@@ -1,14 +1,173 @@
-#+title: Aum Emacs
+#+PROPERTY: header-args:emacs-lisp :tangle ./init.el
 
-* Motivation: /escape/ from Spacemacs
+* ॐ-emacs 
   
-  For years, spacemacs has served me well. I have now realized, however, that it
-  has held me from developing further and truly reach the emacs enlightement.
+  ॐ-emacs or ॐmacs, pronounced "/aum emacs/".
 
-  In the comfort of predefined layers and extensive configuration, I grew lazy.
-  This in turn made me use Emacs not as the infinitely-configurable editor that
-  is, but as just another commercial editor you install a few plugins and a
-  theme in, then change the font and just use it.
+** Motivation: ESC SPC-macs
+  
+   For years, spacemacs has served me well. I have now realized, however, that it
+   has held me from developing further and truly reach emacs enlightement.
 
-  This revelation means that I must embark on a journey into trascendence. May
-  RMS guide my lambdas.
+   In the comfort of predefined layers and extensive configuration, I grew lazy.
+   This in turn made me use Emacs not as the infinitely-configurable editor that
+   is, but as just another commercial editor you install a few plugins and a
+   theme in, then change the font and just use it.
+
+   This revelation means that I must embark on a journey into transcendence. May
+   RMS guide my lambdas.
+
+** The plan
+
+   Unfortunately, spacemacs comes with a lot of useful packages and
+   configurations. My complain is how opaque these defaults are to modify, not
+   the lack of utilities.
+
+   My plan is to keep using spacemacs for a while but slowly start to replicate
+   as much as possible in this configuration. Initially, I think I will *not* use
+   Doom emacs as a base, as it would be another non-standard "distribution" and I
+   know it will ultimately get in the way of the path of ॐmacs.
+
+* The config
+  
+  I will use org-babel right away. The idea of modules as used in Prelude is
+  also worth using, as they are simple elisp modules and help to
+  compartmentalize the config.
+  
+  Suggested packages:
+    + ivy & friends
+    + org-mode
+    + lsp
+    + python+anaconda
+    + magit
+    + yasnippet
+    + writeroom
+    + iedit?
+    + evil | god mode
+
+** Set up
+
+   First of all, configure package repos. This way I can utilize =use-package=
+   to configure everything (I like the interface defined by it).
+   
+   #+begin_src emacs-lisp
+     ;; Initialize package sources
+     (require 'package)
+
+     (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                             ("org" . "https://orgmode.org/elpa/")
+                             ("elpa" . "https://elpa.gnu.org/packages/")))
+
+     (package-initialize)
+     (unless package-archive-contents
+       (package-refresh-contents))
+
+       ;; Initialize use-package on non-Linux platforms
+     (unless (package-installed-p 'use-package)
+       (package-install 'use-package))
+
+     (require 'use-package)
+     (setq use-package-always-ensure t)
+   #+end_src
+
+** UI
+   
+   I consider UI settings things like the theme, font style, disabling the menu
+   bar etc. Not every UI setting can be here, because some are related to
+   particular modules such as LSP, so there you'll find only the most generic UI stuff.
+   
+   #+begin_src emacs-lisp
+     (defvar aum/default-font-size 120) ;; variable. Maybe use noweb in org or some other config file?
+
+     (setq inhibit-startup-message t)
+
+     (scroll-bar-mode -1)        ; Disable visible scrollbar
+     (tool-bar-mode -1)          ; Disable the toolbar
+     (tooltip-mode -1)           ; Disable tooltips
+     (set-fringe-mode 10)        ; Give some breathing room
+     (blink-cursor-mode 0)       ; I hate blinking cursors
+     (menu-bar-mode -1)          ; Disable the menu bar
+
+     ;; Set up the visible bell
+     (setq visible-bell t)
+
+     ;; Frame size (for early development purposes)
+     (setq default-frame-alist
+         (append (list
+               '(width . 100)               ;; width (in characters)
+               '(height . 60))))            ;; height (in characters)
+
+     ;; line numbers!
+     (column-number-mode)
+     (global-display-line-numbers-mode t)
+     (setq-default display-line-numbers-type 'relative
+                   display-line-numbers-current-absolute t
+                   display-line-numbers-width 3
+                   display-line-numbers-widen t)
+     (dolist (mode '(term-mode-hook
+                     shell-mode-hook
+                     eshell-mode-hook))
+       (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+   #+end_src
+
+*** Font
+    
+    I like [[https://typeof.net/Iosevka/][Iosevka]], variant SS04 (in the future I will need to patch this in
+    order to use pretty-symbols. Dammit Emacs, it's 2021 already, we need
+    ligature support!!). [[https://madmalik.github.io/mononoki/][Mononoki]] is another beautiful font I sometimes like to
+    use. For variable pitch (which I don't really favor in Emacs much), I am
+    still deciding between Fira Sans, Cantarell, Open Sans and possibly Roboto
+    (there are many good sans fonts to be honest, Lato is another that comes to
+    mind).
+    
+    #+begin_src emacs-lisp
+      (set-face-attribute 'default nil :font "Iosevka SS04" :height aum/default-font-size)
+      (set-face-attribute 'fixed-pitch nil :font "Iosevka SS04" :height aum/default-font-size)
+      ;; (set-face-attribute 'variable-pitch nil :font "Fira Sans" :height 130 :weight 'regular)
+    #+end_src
+
+    All the icons is a need for a modern look, I think.
+
+    #+begin_src emacs-lisp
+      (use-package all-the-icons)
+    #+end_src
+
+*** Theme setup 
+    
+    I mostly favour the [[https://github.com/mswift42/silkworm-theme][silkworm theme]], although [[https://github.com/vallyscode/cloud-theme][cloud]] and [[https://github.com/bbatsov/solarized-emacs][gruvbox]] (via
+    solarized) are favourites of mine. Honorable mentions: [[https://github.com/arcticicestudio/nord-emacs][norf]] (pun intended),
+    [[https://github.com/emacsfodder/emacs-theme-darktooth][darktooth]].
+    
+    I tend to favour light themes nowadays as they feel easier on my eyes (this
+    is totally subjective).
+    
+    #+begin_src emacs-lisp
+      (use-package silkworm-theme
+        :ensure t
+        :config
+        (load-theme 'silkworm t))
+    #+end_src
+
+*** Modeline
+
+    Doom modeline seems a good option.
+    
+    #+begin_src emacs-lisp
+      (use-package doom-modeline
+        :ensure t
+        :init (doom-modeline-mode 1)
+        :custom ((doom-modeline-height 35)))
+    #+end_src
+
+** Utility
+   
+   Basic packages that I think I need for a minimal working config.
+
+   #+begin_src emacs-lisp
+     (use-package which-key
+       :init (which-key-mode)
+       :diminish which-key-mode
+       :config
+       (setq which-key-idle-delay 0.3))
+   #+end_src
