@@ -1,0 +1,9 @@
+* TODO Refactor to use-package
+* TODO Create modules
+  For example org, i.e. modules org-agenda-config, org-export-config etc.
+* DONE Move the config to its own file
+  CLOSED: [2021-01-13 mié 20:43]
+  The config is going to grow large even with modules. Create separate org file.
+* DONE Do the emacs tutorial
+  CLOSED: [2021-01-13 mié 20:29]
+  Lets follow my own advice for once!
