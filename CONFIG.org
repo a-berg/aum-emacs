@@ -1,3 +1,5 @@
+#+PROPERTY: header-args:emacs-lisp :tangle ./init.el
+
 * ॐ-emacs  config
   
   I will use org-babel right away. The idea of modules as used in Prelude is
@@ -47,38 +49,38 @@
    bar etc.
    
    #+begin_src emacs-lisp
-     (defvar aum/default-font-size 120) ;; variable. Maybe use noweb in org or some other config file?
 
-     (setq inhibit-startup-message t)
+     (use-package emacs
+       :config
+       (setq inhibit-startup-message t
+             visible-bell t) ;; hmmmm do I want this?
+       ;; Frame size (for early development purposes)
+       (setq default-frame-alist
+             (append (list
+                      '(width . 100)               ;; width (in characters)
+                      '(height . 60))))            ;; height (in characters)
 
-     (scroll-bar-mode -1)        ; Disable visible scrollbar
-     (tool-bar-mode -1)          ; Disable the toolbar
-     (tooltip-mode -1)           ; Disable tooltips
-     (set-fringe-mode 10)        ; Give some breathing room
-     (blink-cursor-mode 0)       ; I hate blinking cursors
-     (menu-bar-mode -1)          ; Disable the menu bar
+       (setq-default fill-column 88)
 
-     ;; Set up the visible bell
-     (setq visible-bell t)
+       (scroll-bar-mode -1)        ; Disable visible scrollbar
+       (tool-bar-mode -1)          ; Disable the toolbar
+       (tooltip-mode -1)           ; Disable tooltips
+       (set-fringe-mode 10)        ; Give some breathing room
+       (blink-cursor-mode 0)       ; I hate blinking cursors
+       (menu-bar-mode -1)          ; Disable the menu bar
 
-     ;; Frame size (for early development purposes)
-     (setq default-frame-alist
-         (append (list
-               '(width . 100)               ;; width (in characters)
-               '(height . 60))))            ;; height (in characters)
-
-     ;; line numbers!
-     (column-number-mode)
-     (global-display-line-numbers-mode t)
-     (setq-default display-line-numbers-type 'relative
-                   display-line-numbers-current-absolute t
-                   display-line-numbers-width 3
-                   display-line-numbers-widen t)
-     (dolist (mode '(term-mode-hook
-                     shell-mode-hook
-                     eshell-mode-hook))
-       (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
+       ;; line numbers!
+       (column-number-mode)
+       (global-display-line-numbers-mode t)
+       (setq-default display-line-numbers-type 'relative
+                     display-line-numbers-current-absolute t
+                     display-line-numbers-width 3
+                     display-line-numbers-widen t)
+       (dolist (mode '(term-mode-hook
+                       shell-mode-hook
+                       eshell-mode-hook))
+         (add-hook mode (lambda () (display-line-numbers-mode 0))))
+       )
    #+end_src
 
 *** Font
@@ -92,8 +94,11 @@
     mind).
     
     #+begin_src emacs-lisp
-      (set-face-attribute 'default nil :font "Iosevka SS04" :height aum/default-font-size)
-      (set-face-attribute 'fixed-pitch nil :font "Iosevka SS04" :height aum/default-font-size)
+      (defvar aum/default-font-size 120) ;; variable. Maybe use noweb in org or some other config file?
+      (use-package emacs
+        :config
+        (set-face-attribute 'default nil :font "Iosevka SS04" :height aum/default-font-size)
+        (set-face-attribute 'fixed-pitch nil :font "Iosevka SS04" :height aum/default-font-size))
       ;; (set-face-attribute 'variable-pitch nil :font "Fira Sans" :height 130 :weight 'regular)
     #+end_src
 

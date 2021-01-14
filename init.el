@@ -16,40 +16,43 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(use-package emacs
+  :config
+  (setq inhibit-startup-message t
+        visible-bell t) ;; hmmmm do I want this?
+  ;; Frame size (for early development purposes)
+  (setq default-frame-alist
+        (append (list
+                 '(width . 100)               ;; width (in characters)
+                 '(height . 60))))            ;; height (in characters)
+
+  (setq-default fill-column 88)
+
+  (scroll-bar-mode -1)        ; Disable visible scrollbar
+  (tool-bar-mode -1)          ; Disable the toolbar
+  (tooltip-mode -1)           ; Disable tooltips
+  (set-fringe-mode 10)        ; Give some breathing room
+  (blink-cursor-mode 0)       ; I hate blinking cursors
+  (menu-bar-mode -1)          ; Disable the menu bar
+
+  ;; line numbers!
+  (column-number-mode)
+  (global-display-line-numbers-mode t)
+  (setq-default display-line-numbers-type 'relative
+                display-line-numbers-current-absolute t
+                display-line-numbers-width 3
+                display-line-numbers-widen t)
+  (dolist (mode '(term-mode-hook
+                  shell-mode-hook
+                  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  )
+
 (defvar aum/default-font-size 120) ;; variable. Maybe use noweb in org or some other config file?
-
-(setq inhibit-startup-message t)
-
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
-(set-fringe-mode 10)        ; Give some breathing room
-(blink-cursor-mode 0)       ; I hate blinking cursors
-(menu-bar-mode -1)          ; Disable the menu bar
-
-;; Set up the visible bell
-(setq visible-bell t)
-
-;; Frame size (for early development purposes)
-(setq default-frame-alist
-    (append (list
-          '(width . 100)               ;; width (in characters)
-          '(height . 60))))            ;; height (in characters)
-
-;; line numbers!
-(column-number-mode)
-(global-display-line-numbers-mode t)
-(setq-default display-line-numbers-type 'relative
-              display-line-numbers-current-absolute t
-              display-line-numbers-width 3
-              display-line-numbers-widen t)
-(dolist (mode '(term-mode-hook
-                shell-mode-hook
-                eshell-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-(set-face-attribute 'default nil :font "Iosevka SS04" :height aum/default-font-size)
-(set-face-attribute 'fixed-pitch nil :font "Iosevka SS04" :height aum/default-font-size)
+(use-package emacs
+  :config
+  (set-face-attribute 'default nil :font "Iosevka SS04" :height aum/default-font-size)
+  (set-face-attribute 'fixed-pitch nil :font "Iosevka SS04" :height aum/default-font-size))
 ;; (set-face-attribute 'variable-pitch nil :font "Fira Sans" :height 130 :weight 'regular)
 
 (use-package all-the-icons)

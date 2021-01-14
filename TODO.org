@@ -1,4 +1,3 @@
-* TODO Refactor to use-package
 * TODO Create modules
   For example org, i.e. modules org-agenda-config, org-export-config etc.
 * DONE Move the config to its own file
@@ -7,3 +6,6 @@
 * DONE Do the emacs tutorial
   CLOSED: [2021-01-13 mié 20:29]
   Lets follow my own advice for once!
+
+* DONE Refactor to use-package
+  CLOSED: [2021-01-14 jue 19:39]
