@@ -7,16 +7,11 @@
   compartmentalize the config.
   
   Suggested packages:
-    + ivy & friends
-    + org-mode
     + hydra
     + persp mode
-    + lsp + python & anaconda
-    + magit & forge
     + yasnippet
     + writeroom
     + iedit?
-    + evil | god mode
 
 ** Set up
 
@@ -41,6 +36,12 @@
 
      (require 'use-package)
      (setq use-package-always-ensure t)
+
+     (eval-and-compile
+       (push "./modules" load-path))
+
+
+     (require 'aum-functions-macros)
    #+end_src
 
 ** GUI/Fonts
@@ -138,27 +139,123 @@
         :custom ((doom-modeline-height 35)))
     #+end_src
 
-** Utility
-   
-   Basic packages that I think I need for a minimal working config.
 
+   
+* Keybindings
+
+  Most of the keybinding confiuration can be relegated to modules. However, evil
+  and general are pretty much needed here.
+  
+  #+begin_src emacs-lisp
+    (use-package emacs
+      :config
+      (global-set-key (kbd "<escape>") 'keyboard-escape-quit))
+  #+end_src
+  
+*** General
+
+  Let's first configure =general=:
+
+  #+begin_src emacs-lisp
+    (use-package general
+      :config
+      (general-create-definer aum/leader-keys
+                              :keymaps '(normal insert visual emacs)
+                              :prefix "SPC"
+                              :global-prefix "C-SPC"))
+
+    (require 'aum-keybindings)
+  #+end_src
+  
+*** Evil
+  
+  Even evil has its uses sometimes.
+
+  #+begin_src emacs-lisp
+    (use-package evil
+      :init
+      (setq evil-want-integration t)
+      (setq evil-want-keybinding nil)
+      (setq evil-want-C-u-scroll t)
+      (setq evil-want-C-i-jump nil)
+      :config
+      (evil-mode 1)
+      (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+      (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+      ;; Use visual line motions even outside of visual-line-mode buffers
+      (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+      (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+      (evil-set-initial-state 'messages-buffer-mode 'normal)
+      (evil-set-initial-state 'dashboard-mode 'normal))
+
+    (use-package evil-collection
+      :after evil
+      :ensure t
+      :config
+      (evil-collection-init))
+  #+end_src
+  
+*** Which-key
+    
+    =which-key= is a pretty essential package to me. Sometimes there are just
+    too many things to remember (altough I reckon that M-x can be used in these
+    cases, but you need to remember certain keywords).
+    
+    #+begin_src emacs-lisp
+      (use-package which-key
+        :ensure t
+        :init (which-key-mode)
+        :diminish which-key-mode
+        :config
+        (setq which-key-idle-delay 0.3))
+    #+end_src
+
+* Search
+
+** ivy, counsel, swiper
+   
+   Always used Helm but I wanna try these now. Btw, do I really need all these
+   bindings being defined HERE?
+   
    #+begin_src emacs-lisp
-     (use-package which-key
-       :init (which-key-mode)
-       :diminish which-key-mode
+     (use-package ivy
+       :diminish
+       :bind (("C-s" . swiper)
+              :map ivy-minibuffer-map
+              ("TAB" . ivy-alt-done)
+              ("C-l" . ivy-alt-done)
+              ("C-j" . ivy-next-line)
+              ("C-k" . ivy-previous-line)
+              :map ivy-switch-buffer-map
+              ("C-k" . ivy-previous-line)
+              ("C-l" . ivy-done)
+              ("C-d" . ivy-switch-buffer-kill)
+              :map ivy-reverse-i-search-map
+              ("C-k" . ivy-previous-line)
+              ("C-d" . ivy-reverse-i-search-kill))
        :config
-       (setq which-key-idle-delay 0.3))
+       (ivy-mode 1))
+
+     (use-package ivy-rich
+       :init
+       (ivy-rich-mode 1))
+
+     (use-package counsel
+       :bind (("C-M-j" . 'counsel-switch-buffer)
+              :map minibuffer-local-map
+              ("C-r" . 'counsel-minibuffer-history))
+       :config
+       (counsel-mode 1))
    #+end_src
    
-   Possibly Ivy/counsel/swiper too.
-   
-   #+begin_src emacs-lisp
-
-   #+end_src
-
 * TODO Document production
 
 ** TODO Org
+   
+   Org has too many configurations. I defer it to two modules: =aum/org= and
+   =aum/org-exporters=.
 
 ** TODO Markdown
 
@@ -168,11 +265,132 @@
    
 * TODO Development
   
-** TODO lsp
+** lsp
+   
+*** Basic configuration and setup
+   
+   . Maybe move this to its own top level header? I might need lsp for LaTeX too.
 
-** TODO Python / Anaconda
+   #+begin_src emacs-lisp
+     (defun aum/lsp-mode-setup ()
+       (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+       (lsp-headerline-breadcrumb-mode))
 
-** TODO IPython
+     (use-package lsp-mode
+       :commands (lsp lsp-deferred)
+       :hook (lsp-mode . aum/lsp-mode-setup)
+       :init
+       (setq lsp-keymap-prefix "C-c l")
+       :config
+      (lsp-enable-which-key-integration t))
+   #+end_src
+
+*** lsp-ui
+    
+    #+begin_src emacs-lisp
+      (use-package lsp-ui
+        :after lsp-mode
+        :hook (lsp-mode . lsp-ui-mode)
+        :commands lsp-ui-mode)
+    #+end_src
+
+*** lsp-treemacs
+    
+    I don't use treemacs much but this is needed for nice symbols in the lsp
+    breadcrumb, plus I like the concept of tree views, just not use them much
+    now (but may be useful in the future).
+
+    #+begin_src emacs-lisp
+      (use-package lsp-treemacs
+        :after lsp)
+    #+end_src
+
+*** lsp-ivy
+    
+    #+begin_src emacs-lisp
+      (use-package lsp-ivy)
+    #+end_src
+
+** Python
+   
+   LSP needs a language server. I think I will use pyright, as it seems the
+   quickest nowadays. Sometimes MS does things right I guess.
+
+   #+begin_src emacs-lisp
+     (use-package lsp-pyright
+       :ensure t
+       :hook (python-mode . (lambda ()
+                               (require 'lsp-pyright)
+                               (lsp-deferred))))  ; or lsp
+   #+end_src
+   
+*** Anaconda                                                          :FIXME:
+    
+    Ok so the thing is, I use anaconda for most python development (ML and
+    Tensorflow gpu -- nuff said). This means I would like to have some way to
+    manage my environments inside ॐmacs. Fortunately, there is [[https://github.com/necaris/conda.el][conda.el]].
+
+:FIXME:
+tensorflow-gpu works correctly in kaggle env, tfgpu env causes pyright server
+error
+:END:
+    
+    #+begin_src emacs-lisp
+      (use-package conda
+        :config
+        ;; Need to do this a bit better, but ~ doesnt work...
+        (setq conda-anaconda-home "/home/adrian/miniconda3"
+              conda-env-home-directory "/home/adrian/miniconda3"))
+    #+end_src
+
+:FEATURE:
+I want to add a hook that restarts the LSP server automatically every time I
+change envs, but this doesn't work.
+#+begin_src emacs-lisp :tangle no
+:hook
+(conda-env-activate . lsp-workspace-restart)#+end_src
+ #+end_src
+:END:
+
+    
+*** TODO IPython
+    Just like anaconda, IPython is fundamental for data science workflow.
+
+* TODO Completion
+** TODO Yasnippet
+** TODO Company
+   
+*** Basic configuration and setup
+    
+    Basically an incredible QOL plugin.
+
+    #+begin_src emacs-lisp
+      (use-package company
+        :diminish company-mode
+        :after lsp-mode
+        :hook (lsp-mode . company-mode)
+        :bind (:map company-active-map
+               ("<tab>" . company-complete-selection))
+              (:map lsp-mode-map
+               ("<tab>" . company-indent-or-complete-common))
+        :custom
+        (company-minimum-prefix-length 1)
+        (company-idle-delay 0.0))
+    #+end_src
+   
+*** GUI improvements                                                  :FIXME:
+
+    Install company-box to have a nicer completion box.
+    Currently broken (doesn't display properly).
+    
+    =company-box= has the variable =company-box-icons-alist= that can be set to
+    =all-the-icons=, which I desire.
+    
+    #+begin_src emacs-lisp :tangle no
+      (use-package company-box
+        :diminish company-box-mode
+        :hook (company-mode . company-box-mode))
+    #+end_src
 
 * TODO Productivity
   
@@ -180,9 +398,46 @@
 
 * TODO Project
 
-** TODO magit / forge
+** magit
+   
+   Magit is probably the thing that hooks me too emacs more than anything (yes,
+   even org-mode). I feel extremely handicapped without it now.
 
-** TODO Projectile
+   #+begin_src emacs-lisp
+     (use-package magit
+       :custom
+       (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+   #+end_src
+
+** forge
+   
+   Forge is sort of a magit submodule that lets you interact with github, gitlab
+   and other git-based online repos through their API. I don't need it now, but
+   sometime I will probably want to.
+   
+   Btw they need tokens for the REST stuff, so see [[https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started][getting started]] and token creation.
+   
+   #+begin_src emacs-lisp :tangle no
+     (use-package forge)
+   #+end_src
+
+** Projectile
+   
+   #+begin_src emacs-lisp
+     (use-package projectile
+       :diminish projectile-mode
+       :config (projectile-mode)
+       :custom ((projectile-completion-system 'ivy))
+       :bind-keymap
+       ("C-c p" . projectile-command-map)
+       :init
+       (setq projectile-switch-project-action #'projectile-dired))
+
+     (use-package counsel-projectile
+       :config (counsel-projectile-mode 1))
+   #+end_src
+   
+** TODO persp-mode
 
 * Local variables
 # Local Variables:

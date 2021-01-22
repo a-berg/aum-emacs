@@ -1,11 +1,38 @@
-* TODO Create modules
-  For example org, i.e. modules org-agenda-config, org-export-config etc.
-* DONE Move the config to its own file
-  CLOSED: [2021-01-13 mié 20:43]
-  The config is going to grow large even with modules. Create separate org file.
-* DONE Do the emacs tutorial
-  CLOSED: [2021-01-13 mié 20:29]
-  Lets follow my own advice for once!
+* Release v0.2 [2/2]
 
-* DONE Refactor to use-package
-  CLOSED: [2021-01-14 jue 19:39]
+** DONE Fully functioning python lsp via pyright
+   CLOSED: [2021-01-19 mar 20:11]
+   + [X] Company mode,
+     * FIX company box (por el momento, unfixable)
+     * [X] FIX lsp icons
+   + [X] lsp-ivy
+   + [X] lsp-treemacs
+   + [X] conda mode
+     * entorno tfgpu causa un error con pyright
+     * entorno kaggle va bien (tiene instalado paquete tensorflow-gpu)
+** DONE Create a module for most common keybindings [3/3]
+   CLOSED: [2021-01-22 vie 20:04]
+   These keybindings are good and all but isn't it basically just replicating
+   spacemacs?
+   + [X] File save
+   + [X] Buffer delete
+   + [X] M-x
+
+* Release v0.3 [0/3]
+
+** TODO Maybe refactor
+** TODO Essential org configuration
+   + Dont forget the org-alist and normal lists, see how spacemacs does it.
+** TODO Document production modes
+
+* 1.0 release
+
+  This should serve as my daily driver. At the minimum I would need a rich
+  python+conda+ipython IDE; feature-rich document production suite with
+  markdown, pandoc, LaTeX and Org; code project management via magit, projectile
+  and persp; snippets (yasnippet), powerful code navigation (ivy etc)
+
+  Nice-to have: fully configured term (elisp or other), richly configured dired
+  (possibly sunrise commander), mu4e. Also things like multi-cursors.
+  Hydras and keybindings are not considered essential for 1.0, the idea is to
+  add that kind of functionality over time.
