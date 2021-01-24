@@ -146,6 +146,43 @@
   :config
   (counsel-mode 1))
 
+(require 'aum-org-basic)
+
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("\\.markdown\\'" . markdown-mode)
+         ("\\.md\\'"       . markdown-mode)
+         ("README\\.md\\'" . gfm-mode))
+  :config
+  (setq markdown-enable-math nil
+        markdown-enable-wiki-links t
+        markdown-nested-imenu-heading-index t
+        markdown-footnote-location 'immediately
+        markdown-use-pandoc-style-yaml-metadata t)
+  :hook
+  ('markdown-mode-hook . '(lambda ()
+                            ;; (turn-on-flyspell)
+                            ;; (hl-todo-mode)
+                            (auto-fill-mode)
+                            ;; (centered-cursor-mode 1)
+                            (git-gutter-mode 1))))
+
+(use-package auctex
+  :mode (("\\.tex\\'" . latex-mode)
+         ("\\.latex\\'" . latex-mode))
+  :commands (latex-mode LaTeX-mode plain-tex-mode)
+  :init
+  (progn
+    (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
+    ;; (add-hook 'LaTeX-mode-hook #'flyspell-mode)
+    ;; (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
+    (setq-default TeX-engine 'xetex)
+    (setq TeX-auto-save t
+          TeX-parse-self t
+          TeX-save-query nil
+          TeX-PDF-mode t)
+    (setq-default TeX-master nil)))
+
 (defun aum/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (lsp-headerline-breadcrumb-mode))

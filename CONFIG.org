@@ -251,15 +251,80 @@
    #+end_src
    
 * TODO Document production
+  
+** TODO General settings
+
+   Things like flyspell.
+   
+   #+begin_src emacs-lisp :tangle no
+     (use-package guess-language         ; Automatically detect language for Flyspell
+       ;; :ensure t
+       :defer t
+       :init (add-hook 'text-mode-hook #'guess-language-mode)
+       :config
+       (setq guess-language-langcodes '((en . ("en_GB" "English"))
+                                        (es . ("es_SP" "Spanish")))
+             guess-language-languages '(en es)
+             guess-language-min-paragraph-length 45)
+       :diminish guess-language-mode)
+   #+end_src
 
 ** TODO Org
    
-   Org has too many configurations. I defer it to two modules: =aum/org= and
-   =aum/org-exporters=.
+   Org has too many configurations. I defer it to modules: =aum-org-basic= for
+   basic configuration, then more specialized modules like =aum-org-agenda= and
+   =aum-org-exporters=.
+   
+   #+begin_src emacs-lisp
+     (require 'aum-org-basic)
+   #+end_src
 
 ** TODO Markdown
+   
+   Possibly the most extended markup language on the internet. Only set up
+   minimal settings for now.
+
+   #+begin_src emacs-lisp
+     (use-package markdown-mode
+       :commands (markdown-mode gfm-mode)
+       :mode (("\\.markdown\\'" . markdown-mode)
+              ("\\.md\\'"       . markdown-mode)
+              ("README\\.md\\'" . gfm-mode))
+       :config
+       (setq markdown-enable-math nil
+             markdown-enable-wiki-links t
+             markdown-nested-imenu-heading-index t
+             markdown-footnote-location 'immediately
+             markdown-use-pandoc-style-yaml-metadata t)
+       :hook
+       ('markdown-mode-hook . '(lambda ()
+                                 ;; (turn-on-flyspell)
+                                 ;; (hl-todo-mode)
+                                 (auto-fill-mode)
+                                 ;; (centered-cursor-mode 1)
+                                 (git-gutter-mode 1))))
+   #+end_src
+   
 
 ** TODO LaTeX
+   
+   #+begin_src emacs-lisp
+     (use-package auctex
+       :mode (("\\.tex\\'" . latex-mode)
+              ("\\.latex\\'" . latex-mode))
+       :commands (latex-mode LaTeX-mode plain-tex-mode)
+       :init
+       (progn
+         (add-hook 'LaTeX-mode-hook #'LaTeX-preview-setup)
+         ;; (add-hook 'LaTeX-mode-hook #'flyspell-mode)
+         ;; (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
+         (setq-default TeX-engine 'xetex)
+         (setq TeX-auto-save t
+               TeX-parse-self t
+               TeX-save-query nil
+               TeX-PDF-mode t)
+         (setq-default TeX-master nil)))
+   #+end_src
 
 ** TODO pandoc
    
