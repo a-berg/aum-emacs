@@ -18,12 +18,26 @@
    + [X] Buffer delete
    + [X] M-x
 
-* Release v0.3 [0/3]
+* Release v0.3 [2/4]
 
 ** TODO Maybe refactor
-** TODO Essential org configuration
-   + Dont forget the org-alist and normal lists, see how spacemacs does it.
-** TODO Document production modes
+** DONE Essential org configuration [3/3]
+   CLOSED: [2021-01-27 mié 19:41]
+   + [X] Expansion templates
+   + [X] Pretty bullets
+   + [X] Org babel for elisp and python and
+** DONE Document production modes [2/2]
+   CLOSED: [2021-01-24 dom 13:21]
+   - [X] Markdown
+   - [X] AucTeX
+** TODO Test AucTeX thoroughly [0/3]
+   - [ ] Bibtex and reftex
+   - [ ] Preview
+   - [ ] Some test documents (use something from your MSc or whatever).
+
+* Release 0.4
+  
+** Dashboard
 
 * 1.0 release
 

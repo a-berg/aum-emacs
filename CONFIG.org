@@ -23,8 +23,8 @@
      (require 'package)
 
      (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                             ("org" . "https://orgmode.org/elpa/")
-                             ("elpa" . "https://elpa.gnu.org/packages/")))
+			     ("org" . "https://orgmode.org/elpa/")
+			     ("elpa" . "https://elpa.gnu.org/packages/")))
 
      (package-initialize)
      (unless package-archive-contents
@@ -37,9 +37,8 @@
      (require 'use-package)
      (setq use-package-always-ensure t)
 
-     (eval-and-compile
-       (push "./modules" load-path))
-
+     (setq user-emacs-directory "~/code/personal/aum-emacs/modules")
+     (add-to-list 'load-path user-emacs-directory)
 
      (require 'aum-functions-macros)
    #+end_src
@@ -139,8 +138,6 @@
         :custom ((doom-modeline-height 35)))
     #+end_src
 
-
-   
 * Keybindings
 
   Most of the keybinding confiuration can be relegated to modules. However, evil
@@ -195,6 +192,16 @@
       :ensure t
       :config
       (evil-collection-init))
+
+    (use-package evil-surround
+      :ensure t
+      :config
+      (global-evil-surround-mode 1))
+
+    (use-package evil-commentary
+      :ensure t
+      :init
+      (evil-commentary-mode))
   #+end_src
   
 *** Which-key
@@ -211,7 +218,7 @@
         :config
         (setq which-key-idle-delay 0.3))
     #+end_src
-
+    
 * Search
 
 ** ivy, counsel, swiper
@@ -249,12 +256,16 @@
        :config
        (counsel-mode 1))
    #+end_src
-   
+    
+* OS
+
+  This section will be used for system related stuff, like file manager (dired).
+
 * TODO Document production
   
 ** TODO General settings
 
-   Things like flyspell.
+   Things like flyspell, writeroom mode, or ivy-bibtex.
    
    #+begin_src emacs-lisp :tangle no
      (use-package guess-language         ; Automatically detect language for Flyspell
@@ -279,7 +290,7 @@
      (require 'aum-org-basic)
    #+end_src
 
-** TODO Markdown
+** Markdown
    
    Possibly the most extended markup language on the internet. Only set up
    minimal settings for now.
@@ -295,18 +306,21 @@
              markdown-enable-wiki-links t
              markdown-nested-imenu-heading-index t
              markdown-footnote-location 'immediately
-             markdown-use-pandoc-style-yaml-metadata t)
-       :hook
-       ('markdown-mode-hook . '(lambda ()
-                                 ;; (turn-on-flyspell)
-                                 ;; (hl-todo-mode)
-                                 (auto-fill-mode)
-                                 ;; (centered-cursor-mode 1)
-                                 (git-gutter-mode 1))))
+             markdown-use-pandoc-style-yaml-metadata t))
+       ;; :hook
+       ;; ('markdown-mode-hook . '(lambda ()
+       ;;                           ;; (turn-on-flyspell)
+       ;;                           ;; (hl-todo-mode)
+       ;;                           (auto-fill-mode)
+       ;;                           ;; (centered-cursor-mode 1)
+       ;;                           (git-gutter-mode 1))))
    #+end_src
-   
 
-** TODO LaTeX
+** LaTeX
+   
+   The basic settings for auctex. Take into account that many LaTeX settings are
+   being pasted from mclear dotemacs, so further changes will be made in the
+   future. This is only the base.
    
    #+begin_src emacs-lisp
      (use-package auctex
@@ -325,10 +339,42 @@
                TeX-PDF-mode t)
          (setq-default TeX-master nil)))
    #+end_src
+   
+   Preview latex. These scale settings will need to be tuned, possibly.
+   
+   #+begin_src emacs-lisp :tangle no
+     (use-package preview-mode
+       :after auctex
+       :commands LaTeX-preview-setup
+       :init
+       (progn
+         (setq-default preview-scale 1.4
+                       preview-scale-function '(lambda ()
+                                                 (* (/ 10.0 (preview-document-pt))
+                                                    preview-scale)))))
+   #+end_src
+   
+   Finally, reftex and bibtex. Q: what about biblatex?
+
+   #+begin_src emacs-lisp
+     (use-package reftex
+       :commands turn-on-reftex
+       :init
+       (progn
+         (setq reftex-plug-into-AUCTeX t)))
+
+     (use-package bibtex
+       :defer t
+       :mode ("\\.bib" . bibtex-mode)
+       :init
+       (progn
+         (setq bibtex-align-at-equal-sign t)
+         (add-hook 'bibtex-mode-hook (lambda () (set-fill-column 120)))))
+   #+end_src
 
 ** TODO pandoc
    
-* TODO Development
+* Development
   
 ** lsp
    
@@ -423,7 +469,7 @@ change envs, but this doesn't work.
 
 * TODO Completion
 ** TODO Yasnippet
-** TODO Company
+** Company
    
 *** Basic configuration and setup
     
@@ -457,6 +503,23 @@ change envs, but this doesn't work.
         :hook (company-mode . company-box-mode))
     #+end_src
 
+** Smartparens
+   
+   Smartparens is a power tool that not only completes pairs of characters but
+   also lets you navigate the structure pretty easily.
+
+   #+begin_src emacs-lisp
+     (use-package smartparens
+       :init
+       (smartparens-global-mode)
+       :config
+       (require 'smartparens-config)
+       (sp-pair "=" "=" :actions '(wrap))
+       (sp-pair "+" "+" :actions '(wrap))
+       (sp-pair "<" ">" :actions '(wrap))
+       (sp-pair "$" "$" :actions '(wrap)))
+   #+end_src
+    
 * TODO Productivity
   
 ** mu4e

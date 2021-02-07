@@ -1,1 +1,8 @@
 /init_old.el
+/.cache/
+/auto-save-list/
+/elpa/
+/modules/.cache/
+*.eld
+/transient/
+/modules/transient/

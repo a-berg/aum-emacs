@@ -2,8 +2,8 @@
 (require 'package)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                        ("org" . "https://orgmode.org/elpa/")
-                        ("elpa" . "https://elpa.gnu.org/packages/")))
+			("org" . "https://orgmode.org/elpa/")
+			("elpa" . "https://elpa.gnu.org/packages/")))
 
 (package-initialize)
 (unless package-archive-contents
@@ -16,9 +16,8 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(eval-and-compile
-  (push "./modules" load-path))
-
+(setq user-emacs-directory "~/code/personal/aum-emacs/modules")
+(add-to-list 'load-path user-emacs-directory)
 
 (require 'aum-functions-macros)
 
@@ -110,6 +109,16 @@
   :config
   (evil-collection-init))
 
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+
+(use-package evil-commentary
+  :ensure t
+  :init
+  (evil-commentary-mode))
+
 (use-package which-key
   :ensure t
   :init (which-key-mode)
@@ -158,14 +167,14 @@
         markdown-enable-wiki-links t
         markdown-nested-imenu-heading-index t
         markdown-footnote-location 'immediately
-        markdown-use-pandoc-style-yaml-metadata t)
-  :hook
-  ('markdown-mode-hook . '(lambda ()
-                            ;; (turn-on-flyspell)
-                            ;; (hl-todo-mode)
-                            (auto-fill-mode)
-                            ;; (centered-cursor-mode 1)
-                            (git-gutter-mode 1))))
+        markdown-use-pandoc-style-yaml-metadata t))
+  ;; :hook
+  ;; ('markdown-mode-hook . '(lambda ()
+  ;;                           ;; (turn-on-flyspell)
+  ;;                           ;; (hl-todo-mode)
+  ;;                           (auto-fill-mode)
+  ;;                           ;; (centered-cursor-mode 1)
+  ;;                           (git-gutter-mode 1))))
 
 (use-package auctex
   :mode (("\\.tex\\'" . latex-mode)
@@ -182,6 +191,20 @@
           TeX-save-query nil
           TeX-PDF-mode t)
     (setq-default TeX-master nil)))
+
+(use-package reftex
+  :commands turn-on-reftex
+  :init
+  (progn
+    (setq reftex-plug-into-AUCTeX t)))
+
+(use-package bibtex
+  :defer t
+  :mode ("\\.bib" . bibtex-mode)
+  :init
+  (progn
+    (setq bibtex-align-at-equal-sign t)
+    (add-hook 'bibtex-mode-hook (lambda () (set-fill-column 120)))))
 
 (defun aum/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
@@ -228,6 +251,16 @@
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0))
+
+(use-package smartparens
+  :init
+  (smartparens-global-mode)
+  :config
+  (require 'smartparens-config)
+  (sp-pair "=" "=" :actions '(wrap))
+  (sp-pair "+" "+" :actions '(wrap))
+  (sp-pair "<" ">" :actions '(wrap))
+  (sp-pair "$" "$" :actions '(wrap)))
 
 (use-package magit
   :custom
