@@ -1,4 +1,5 @@
 (use-package org
+  :ensure t
   :config
   (setq-default org-footnote-section nil
                 org-return-follows-link t
@@ -8,7 +9,8 @@
                 )
 
   ;; Structures
-  (require 'org-tempo)
+  (with-eval-after-load 'org
+    (add-to-list 'org-modules 'org-tempo t))
 
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))

@@ -6,3 +6,4 @@
 *.eld
 /transient/
 /modules/transient/
+/modules/.lsp-session-v1

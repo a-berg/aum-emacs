@@ -1,5 +1,6 @@
 ;; Initialize package sources
 (require 'package)
+(setq-default load-prefer-newer t)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			("org" . "https://orgmode.org/elpa/")
@@ -196,7 +197,9 @@
   :commands turn-on-reftex
   :init
   (progn
-    (setq reftex-plug-into-AUCTeX t)))
+    (setq reftex-plug-into-AUCTeX t))
+  :config
+  (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")))
 
 (use-package bibtex
   :defer t
@@ -205,6 +208,23 @@
   (progn
     (setq bibtex-align-at-equal-sign t)
     (add-hook 'bibtex-mode-hook (lambda () (set-fill-column 120)))))
+
+(pdf-loader-install)
+
+(use-package pandoc-mode
+  :ensure t
+  :config
+  (setq pandoc-use-async t)
+  ;; stop pandoc from just hanging forever and not completing conversion
+  ;; see https://github.com/joostkremers/pandoc-mode/issues/44
+  (setq pandoc-process-connection-type nil)
+  (progn
+    (defun run-pandoc ()
+      "Start pandoc for the buffer and open the menu"
+      (interactive)
+      (pandoc-mode)
+      (pandoc-main-hydra/body))
+    (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)))
 
 (defun aum/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))

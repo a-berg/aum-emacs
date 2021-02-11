@@ -18,9 +18,9 @@
    + [X] Buffer delete
    + [X] M-x
 
-* Release v0.3 [2/4]
+* Release v0.3 [4/4]
 
-** TODO Maybe refactor
+** Maybe refactor
 ** DONE Essential org configuration [3/3]
    CLOSED: [2021-01-27 mié 19:41]
    + [X] Expansion templates
@@ -30,11 +30,12 @@
    CLOSED: [2021-01-24 dom 13:21]
    - [X] Markdown
    - [X] AucTeX
-** TODO Test AucTeX thoroughly [0/3]
-   - [ ] Bibtex and reftex
-   - [ ] Preview
-   - [ ] Some test documents (use something from your MSc or whatever).
-
+** DONE Test AucTeX thoroughly [3/3]
+   - [X] Bibtex and reftex
+   - [X] Preview (seems not what I wanted)
+   - [X] Some test documents (use something from your MSc or whatever).
+** DONE pdf-tools
+   
 * Release 0.4
   
 ** Dashboard
@@ -50,3 +51,4 @@
   (possibly sunrise commander), mu4e. Also things like multi-cursors.
   Hydras and keybindings are not considered essential for 1.0, the idea is to
   add that kind of functionality over time.
+  

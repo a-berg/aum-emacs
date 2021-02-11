@@ -21,6 +21,7 @@
    #+begin_src emacs-lisp
      ;; Initialize package sources
      (require 'package)
+     (setq-default load-prefer-newer t)
 
      (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			     ("org" . "https://orgmode.org/elpa/")
@@ -218,7 +219,7 @@
         :config
         (setq which-key-idle-delay 0.3))
     #+end_src
-    
+
 * Search
 
 ** ivy, counsel, swiper
@@ -287,7 +288,7 @@
    =aum-org-exporters=.
    
    #+begin_src emacs-lisp
-     (require 'aum-org-basic)
+   (require 'aum-org-basic)
    #+end_src
 
 ** Markdown
@@ -354,25 +355,53 @@
                                                     preview-scale)))))
    #+end_src
    
-   Finally, reftex and bibtex. Q: what about biblatex?
+   Finally, reftex and bibtex/biblatex support.
 
    #+begin_src emacs-lisp
      (use-package reftex
        :commands turn-on-reftex
        :init
        (progn
-         (setq reftex-plug-into-AUCTeX t)))
+	 (setq reftex-plug-into-AUCTeX t))
+       :config
+       (setq reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")))
 
      (use-package bibtex
        :defer t
        :mode ("\\.bib" . bibtex-mode)
        :init
        (progn
-         (setq bibtex-align-at-equal-sign t)
-         (add-hook 'bibtex-mode-hook (lambda () (set-fill-column 120)))))
+	 (setq bibtex-align-at-equal-sign t)
+	 (add-hook 'bibtex-mode-hook (lambda () (set-fill-column 120)))))
+   #+end_src
+   
+   Extra: pdf-tools for better pdf viewing inside emacs.
+   
+   #+begin_src emacs-lisp
+   (pdf-loader-install)
    #+end_src
 
-** TODO pandoc
+** pandoc
+   
+   I like pandoc for document conversion, as it offers several capabilities that other
+   workflows lack. For this package I use a minimal setup.
+   
+   #+begin_src emacs-lisp
+     (use-package pandoc-mode
+       :ensure t
+       :config
+       (setq pandoc-use-async t)
+       ;; stop pandoc from just hanging forever and not completing conversion
+       ;; see https://github.com/joostkremers/pandoc-mode/issues/44
+       (setq pandoc-process-connection-type nil)
+       (progn
+	 (defun run-pandoc ()
+	   "Start pandoc for the buffer and open the menu"
+	   (interactive)
+	   (pandoc-mode)
+	   (pandoc-main-hydra/body))
+	 (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)))
+   #+end_src
    
 * Development
   
