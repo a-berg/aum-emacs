@@ -36,9 +36,13 @@
    - [X] Some test documents (use something from your MSc or whatever).
 ** DONE pdf-tools
    
-* Release 0.4
+* Release 0.4 [0/3]
   
 ** Dashboard
+** TODO Improve usability (keybindings, hydras)
+   - [ ] Keybindings for treemacs, its useful it seems!
+** TODO Yasnippet
+** TODO org-agenda
 
 * 1.0 release
 
