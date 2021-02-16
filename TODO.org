@@ -36,11 +36,26 @@
    - [X] Some test documents (use something from your MSc or whatever).
 ** DONE pdf-tools
    
-* Release 0.4 [0/3]
+* Release 0.4 [1/4]
   
 ** Dashboard
+** DONE multiple-cursors
 ** TODO Improve usability (keybindings, hydras)
+   - [X] Expand basic keybindings
    - [ ] Keybindings for treemacs, its useful it seems!
+   - [ ] Keybindings for conda
+   - [ ] Hydra for windows
+     + Use posframe
+   - [ ] Moar hydras
+     - [ ] Windows
+     - [ ] Toggles
+     - [ ] multiple-cursors
+     - [ ] org-mode movements
+     - [ ] Help
+   - [ ] HAIL HYDRA
+     - [ ] org templates
+     - [ ] org captures
+     - [ ] major modes (this is an universe unto itself)
 ** TODO Yasnippet
 ** TODO org-agenda
 
@@ -55,4 +70,3 @@
   (possibly sunrise commander), mu4e. Also things like multi-cursors.
   Hydras and keybindings are not considered essential for 1.0, the idea is to
   add that kind of functionality over time.
-  

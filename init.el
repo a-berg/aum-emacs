@@ -23,6 +23,24 @@
 (require 'aum-functions-macros)
 
 (use-package emacs
+  :hook ((before-save . delete-trailing-whitespace))
+  :config
+  ;; default to utf-8 for all the things
+  (set-charset-priority 'unicode)
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+  (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+  ;; always allow 'y' instead of 'yes'.
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  ;; Stop Emacs from littering the system with backup files.
+  (setq make-backup-files nil
+	auto-save-default nil
+	create-lockfiles nil))
+
+(use-package emacs
   :config
   (setq inhibit-startup-message t
         visible-bell t) ;; hmmmm do I want this?
@@ -155,6 +173,19 @@
          ("C-r" . 'counsel-minibuffer-history))
   :config
   (counsel-mode 1))
+
+(use-package multiple-cursors
+  ;; :functions hydra-multiple-cursors
+  ;; :bind
+  ;; ("M-u" . hydra-multiple-cursors/body)
+  ;; :config
+  ;; hydra goes here
+  )
+
+(use-package mwim
+  :bind
+  ("C-a" . mwim-beginning-of-code-or-line)
+  ("C-e" . mwim-end-of-code-or-line))
 
 (require 'aum-org-basic)
 

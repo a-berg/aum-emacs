@@ -44,6 +44,28 @@
      (require 'aum-functions-macros)
    #+end_src
 
+   Now, for some sane defaults...
+
+   #+begin_src emacs-lisp
+     (use-package emacs
+       :hook ((before-save . delete-trailing-whitespace))
+       :config
+       ;; default to utf-8 for all the things
+       (set-charset-priority 'unicode)
+       (setq locale-coding-system 'utf-8)
+       (set-terminal-coding-system 'utf-8)
+       (set-keyboard-coding-system 'utf-8)
+       (set-selection-coding-system 'utf-8)
+       (prefer-coding-system 'utf-8)
+       (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+       ;; always allow 'y' instead of 'yes'.
+       (defalias 'yes-or-no-p 'y-or-n-p)
+       ;; Stop Emacs from littering the system with backup files.
+       (setq make-backup-files nil
+	     auto-save-default nil
+	     create-lockfiles nil))
+   #+end_src
+
 ** GUI/Fonts
    
    I consider GUI settings things like the theme, font style, disabling the menu
@@ -138,7 +160,7 @@
         :init (doom-modeline-mode 1)
         :custom ((doom-modeline-height 35)))
     #+end_src
-
+    
 * Keybindings
 
   Most of the keybinding confiuration can be relegated to modules. However, evil
@@ -261,6 +283,39 @@
 * OS
 
   This section will be used for system related stuff, like file manager (dired).
+  
+* Cursor
+
+  Inspired by Ladicle's way of organizing his/her configuration, this section deals with
+  stuff related to the cursor. For example, multiple cursors, avy or ace.
+
+** Multiple Cursors
+
+   #+begin_src emacs-lisp
+     (use-package multiple-cursors
+       ;; :functions hydra-multiple-cursors
+       ;; :bind
+       ;; ("M-u" . hydra-multiple-cursors/body)
+       ;; :config
+       ;; hydra goes here
+       )
+   #+end_src
+
+** avy/ace
+
+   #+begin_src emacs-lisp :tangle no
+     (use-package avy)
+     (use-package ace)
+   #+end_src
+
+** Move Where I Mean
+
+   #+begin_src emacs-lisp
+     (use-package mwim
+       :bind
+       ("C-a" . mwim-beginning-of-code-or-line)
+       ("C-e" . mwim-end-of-code-or-line))
+   #+end_src
 
 * TODO Document production
   

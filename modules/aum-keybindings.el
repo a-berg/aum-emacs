@@ -5,7 +5,9 @@
    :prefix "SPC"
    :non-normal-prefix "C-SPC"
 
-   "<SPC>" 'counsel-M-x)
+   "<SPC>" 'counsel-M-x
+   "TAB" 'aum/switch-to-previous-buffer
+   )
 
 ;;;;  Applications Keybindings
   (general-define-key
@@ -78,9 +80,9 @@
 
    "q"  '(:ignore t :which-key "Quit")
    ;; "qq" 'cpm/save-desktop-save-buffers-kill-emacs
-   "qd" 'cpm/kill-emacs-capture-daemon
+   ;; "qd" 'cpm/kill-emacs-capture-daemon
    "qq" 'evil-quit-all
-   "qQ" 'cpm/kill-all-emacsen
+   ;; "qQ" 'cpm/kill-all-emacsen
    "qr" 'restart-emacs
    )
 
