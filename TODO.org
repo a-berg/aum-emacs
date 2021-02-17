@@ -42,7 +42,9 @@
 ** DONE multiple-cursors
 ** TODO Improve usability (keybindings, hydras)
    - [X] Expand basic keybindings
-   - [ ] Keybindings for treemacs, its useful it seems!
+   - [X] Keybindings for treemacs, its useful it seems!
+     - Use =SPC f t= to open treemacs
+     - Then an hydra for adding-removing projects to workspace?
    - [ ] Keybindings for conda
    - [ ] Hydra for windows
      + Use posframe

@@ -69,7 +69,8 @@
     "ff" 'counsel-find-file
     "fl" 'counsel-locate
     "fs" 'save-buffer
-    "fr" 'counsel-recentf)
+    "fr" 'counsel-recentf
+    "ft" #'treemacs-select-window)
 
 ;;; Quit Keybindings
   (general-define-key
