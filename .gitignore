@@ -7,3 +7,6 @@
 /transient/
 /modules/transient/
 /modules/.lsp-session-v1
+*.desktop
+*.lock
+/modules/recentf

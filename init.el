@@ -43,12 +43,14 @@
 (use-package emacs
   :config
   (setq inhibit-startup-message t
-        visible-bell t) ;; hmmmm do I want this?
+	visible-bell t) ;; hmmmm do I want this?
   ;; Frame size (for early development purposes)
   (setq default-frame-alist
-        (append (list
-                 '(width . 100)               ;; width (in characters)
-                 '(height . 60))))            ;; height (in characters)
+	(append (list
+		 '(width . 100)               ;; width (in characters)
+		 '(height . 60))))            ;; height (in characters)
+
+  (toggle-frame-maximized)
 
   (setq-default fill-column 88)
 
@@ -63,12 +65,12 @@
   (column-number-mode)
   (global-display-line-numbers-mode t)
   (setq-default display-line-numbers-type 'relative
-                display-line-numbers-current-absolute t
-                display-line-numbers-width 3
-                display-line-numbers-widen t)
+		display-line-numbers-current-absolute t
+		display-line-numbers-width 3
+		display-line-numbers-widen t)
   (dolist (mode '(term-mode-hook
-                  shell-mode-hook
-                  eshell-mode-hook))
+		  shell-mode-hook
+		  eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
   )
 
@@ -145,6 +147,23 @@
   :config
   (setq which-key-idle-delay .3))
 
+(use-package hydra
+  :config
+  ;; (use-package hydra-posframe
+  ;;   :custom
+  ;;   (hydra-posframe-parameters
+  ;;     '((left-fringe . 5)
+  ;; 	(right-fringe . 5)))
+  ;;   :custom-face
+  ;;   (hydra-posframe-border-face ((t (:background "#6272a4"))))
+  ;;   :hook (after-init . hydra-posframe-enable))
+  (use-package major-mode-hydra
+    :demand t
+    :ensure t
+    :general
+    (:states '(normal visual)
+     "," 'major-mode-hydra)))
+
 (use-package ivy
   :diminish
   :bind (("C-s" . swiper)
@@ -174,13 +193,37 @@
   :config
   (counsel-mode 1))
 
-(use-package multiple-cursors
-  ;; :functions hydra-multiple-cursors
-  ;; :bind
-  ;; ("M-u" . hydra-multiple-cursors/body)
-  ;; :config
-  ;; hydra goes here
-  )
+(use-package evil-mc
+  :functions hydra-multiple-cursors
+  :bind
+  ("M-u" . hydra-multiple-cursors/body)
+  :config
+  (with-eval-after-load 'hydra
+    (defhydra hydra-multiple-cursors (:color pink :hint nil)
+"
+									╔════════╗
+    Point^^^^^^             Misc^^            Insert                            ║ Cursor ║
+  ──────────────────────────────────────────────────────────────────────╨────────╜
+     _k_    _K_    _M-k_    [_l_] edit lines  [_i_] 0...
+     ^↑^    ^↑^     ^↑^  [_m_] mark all    [_a_] letters
+    mark^^ skip^^^ un-mk^   [_s_] sort
+     ^↓^    ^↓^     ^↓^
+     _j_    _J_    _M-j_
+  ╭──────────────────────────────────────────────────────────────────────────────╯
+			   [_q_]: quit
+"
+	  ("l" mc/edit-lines :exit t)
+	  ("m" mc/mark-all-like-this :exit t)
+	  ("j" mc/mark-next-like-this)
+	  ("J" mc/skip-to-next-like-this)
+	  ("M-j" mc/unmark-next-like-this)
+	  ("k" mc/mark-previous-like-this)
+	  ("K" mc/skip-to-previous-like-this)
+	  ("M-k" mc/unmark-previous-like-this)
+	  ("s" mc/mark-all-in-region-regexp :exit t)
+	  ("i" mc/insert-numbers :exit t)
+	  ("a" mc/insert-letters :exit t)
+	  ("q" nil))))
 
 (use-package mwim
   :bind
@@ -192,14 +235,35 @@
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
   :mode (("\\.markdown\\'" . markdown-mode)
-         ("\\.md\\'"       . markdown-mode)
-         ("README\\.md\\'" . gfm-mode))
+	 ("\\.md\\'"       . markdown-mode)
+	 ("README\\.md\\'" . gfm-mode))
   :config
+  (use-package edit-indirect)
   (setq markdown-enable-math nil
-        markdown-enable-wiki-links t
-        markdown-nested-imenu-heading-index t
-        markdown-footnote-location 'immediately
-        markdown-use-pandoc-style-yaml-metadata t))
+	markdown-enable-wiki-links t
+	markdown-nested-imenu-heading-index t
+	markdown-asymmetric-header t
+	markdown-footnote-location 'immediately
+	markdown-use-pandoc-style-yaml-metadata t)
+  :mode-hydra
+  ((:title (with-octicon "markdown" "Markdown mode" 1 -0.05) :quit-key "q")
+   ("Navigation"
+    (("k" markdown-outline-previous-same-level "↑" :exit nil)
+     ("j" markdown-outline-next-same-level "↓" :exit nil)
+     ("i" markdown-outline-up "up level" :exit nil)
+     ("h" markdown-outline-previous "prev" :exit nil)
+     ("l" markdown-outline-next "next" :exit nil))
+    "Headers"
+    (("K" markdown-move-subtree-up "move subtree up" :exit nil)
+     ("J" markdown-move-subtree-down "move subtree down" :exit nil)
+     ("H" markdown-move-up "move header up" :exit nil)
+     ("L" markdown-move-down "move header down" :exit nil)
+     ("C-j" markdown-promote-subtree "promote subtree" :exit nil)
+     ("C-k" markdown-demote-subtree "demote subtree" :exit nil)
+     )
+    )
+   )
+  )
   ;; :hook
   ;; ('markdown-mode-hook . '(lambda ()
   ;;                           ;; (turn-on-flyspell)
@@ -279,17 +343,68 @@
 
 (use-package lsp-ivy)
 
-(use-package lsp-pyright
-  :ensure t
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp-deferred))))  ; or lsp
+(pretty-hydra-define lsp-hydra
+  (:foreign-keys warn :title "LSP" :quit-key "q")
+  ("Buffer"
+   (("=" lsp-format-buffer)
+    ("m" lsp-ui-imenu)
+    ("x" lsp-execute-code-action))
+   "Server"
+   (("C-s" lsp-describe-session)
+    ("C-r" lsp-restart-workspace)
+    ("S" lsp-shutdown-workspace))
+   "Symbol"
+   (("d" lsp-find-declaration)
+    ("D" lsp-ui-peek-find-definitions)
+    ("R" lsp-ui-peek-find-references)
+    ("i" lsp-ui-peek-find-implementation))
+   ""
+   (("t" lsp-find-type-definition)
+    ("s" lsp-signature-help)
+    ("o" lsp-describe-thing-at-point)
+    ("r" lsp-rename))
+   ))
 
-(use-package conda
+(use-package python-mode
   :config
-  ;; Need to do this a bit better, but ~ doesnt work...
-  (setq conda-anaconda-home "/home/adrian/miniconda3"
-        conda-env-home-directory "/home/adrian/miniconda3"))
+  (use-package lsp-pyright
+    :ensure t
+    :hook (python-mode . (lambda ()
+			   (require 'lsp-pyright)
+			   (lsp-deferred))))
+  (use-package conda
+    :config
+    ;; Need to do this a bit better, but ~ doesnt work...
+    (setq conda-anaconda-home "/home/adrian/miniconda3"
+	  conda-env-home-directory "/home/adrian/miniconda3"))
+  :mode-hydra
+  ((:title "Python mode")
+   ("Conda"
+   (("a" conda-env-activate "activate env")
+    ("d" conda-env-deactivate "deactivate env")
+    ("l" conda-env-list "list environments")
+    ("M" conda-env-autoactivate-mode "autoactivate mode" :toggle t)
+    ("P" conda-env-activate-path "activate path")
+    ("B" conda-env-activate-for-buffer "activate for buffer"))
+   "LSP" (("C-l" lsp-hydra/body "lsp hydra"))
+   )))
+
+(major-mode-hydra-define emacs-lisp-mode nil
+  ("Eval"
+   (("b" eval-buffer "buffer")
+    ("e" eval-defun "defun")
+    ("r" eval-region "region"))
+   "REPL"
+   (("I" ielm "ielm"))
+   "Test"
+   (("t" ert "prompt")
+    ("T" (ert t) "all")
+    ("F" (ert :failed) "failed"))
+   "Doc"
+   (("d" describe-foo-at-point "thing-at-pt")
+    ("f" describe-function "function")
+    ("v" describe-variable "variable")
+    ("i" info-lookup-symbol "info lookup"))))
 
 (use-package company
   :diminish company-mode
@@ -328,3 +443,24 @@
 
 (use-package counsel-projectile
   :config (counsel-projectile-mode 1))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (olivetti olivetti-mode pdf-tools which-key use-package smartparens silkworm-theme python-mode pandoc-mode org-superstar mwim multiple-cursors major-mode-hydra magit lsp-ui lsp-treemacs lsp-pyright lsp-ivy ivy-rich general evil-surround evil-mc evil-commentary evil-collection edit-indirect doom-modeline counsel-projectile conda company auctex)))
+ '(safe-local-variable-values
+   (quote
+    ((eval add-hook
+	   (quote after-save-hook)
+	   (lambda nil
+	     (org-babel-tangle))
+	   nil t)))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

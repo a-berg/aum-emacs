@@ -1,13 +1,12 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
 
 * ॐ-emacs  config
-  
+
   I will use org-babel right away. The idea of modules as used in Prelude is
   also worth using, as they are simple elisp modules and help to
   compartmentalize the config.
-  
+
   Suggested packages:
-    + hydra
     + persp mode
     + yasnippet
     + writeroom
@@ -17,7 +16,7 @@
 
    First of all, configure package repos. This way I can utilize =use-package=
    to configure everything (I like the interface defined by it).
-   
+
    #+begin_src emacs-lisp
      ;; Initialize package sources
      (require 'package)
@@ -67,55 +66,58 @@
    #+end_src
 
 ** GUI/Fonts
-   
+
    I consider GUI settings things like the theme, font style, disabling the menu
    bar etc.
-   
+
    #+begin_src emacs-lisp
 
-     (use-package emacs
-       :config
-       (setq inhibit-startup-message t
-             visible-bell t) ;; hmmmm do I want this?
-       ;; Frame size (for early development purposes)
-       (setq default-frame-alist
-             (append (list
-                      '(width . 100)               ;; width (in characters)
-                      '(height . 60))))            ;; height (in characters)
+	(use-package emacs
+	  :config
+	  (setq inhibit-startup-message t
+		visible-bell t) ;; hmmmm do I want this?
+	  ;; Frame size (for early development purposes)
+	  (setq default-frame-alist
+		(append (list
+			 '(width . 100)               ;; width (in characters)
+			 '(height . 60))))            ;; height (in characters)
 
-       (setq-default fill-column 88)
+	  (toggle-frame-maximized)
 
-       (scroll-bar-mode -1)        ; Disable visible scrollbar
-       (tool-bar-mode -1)          ; Disable the toolbar
-       (tooltip-mode -1)           ; Disable tooltips
-       (set-fringe-mode 10)        ; Give some breathing room
-       (blink-cursor-mode 0)       ; I hate blinking cursors
-       (menu-bar-mode -1)          ; Disable the menu bar
+	  (setq-default fill-column 88)
 
-       ;; line numbers!
-       (column-number-mode)
-       (global-display-line-numbers-mode t)
-       (setq-default display-line-numbers-type 'relative
-                     display-line-numbers-current-absolute t
-                     display-line-numbers-width 3
-                     display-line-numbers-widen t)
-       (dolist (mode '(term-mode-hook
-                       shell-mode-hook
-                       eshell-mode-hook))
-         (add-hook mode (lambda () (display-line-numbers-mode 0))))
-       )
+	  (scroll-bar-mode -1)        ; Disable visible scrollbar
+	  (tool-bar-mode -1)          ; Disable the toolbar
+	  (tooltip-mode -1)           ; Disable tooltips
+	  (set-fringe-mode 10)        ; Give some breathing room
+	  (blink-cursor-mode 0)       ; I hate blinking cursors
+	  (menu-bar-mode -1)          ; Disable the menu bar
+
+	  ;; line numbers!
+	  (column-number-mode)
+	  (global-display-line-numbers-mode t)
+	  (setq-default display-line-numbers-type 'relative
+			display-line-numbers-current-absolute t
+			display-line-numbers-width 3
+			display-line-numbers-widen t)
+	  (dolist (mode '(term-mode-hook
+			  shell-mode-hook
+			  eshell-mode-hook))
+	    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+	  )
    #+end_src
 
 *** Font
-    
-    I like [[https://typeof.net/Iosevka/][Iosevka]], variant SS04 (in the future I will need to patch this in
-    order to use pretty-symbols. Dammit Emacs, it's 2021 already, we need
-    ligature support!!). [[https://madmalik.github.io/mononoki/][Mononoki]] is another beautiful font I sometimes like to
-    use. For variable pitch (which I don't really favor in Emacs much), I am
-    still deciding between Fira Sans, Cantarell, Open Sans and possibly Roboto
-    (there are many good sans fonts to be honest, Lato is another that comes to
-    mind).
-    
+
+    I like [[https://typeof.net/Iosevka/][Iosevka]], variant SS04. Starting with Emacs 27.1, the font backend is
+    HarfBuzz, meaning there is support for stylistic sets and ligatures. I'll need to
+    explore this.
+
+    [[https://madmalik.github.io/mononoki/][Mononoki]] is another beautiful font I sometimes like to use. For variable pitch
+    (which I don't really favor in Emacs much), I am still deciding between Fira Sans,
+    Cantarell, Open Sans and possibly Roboto (there are many good sans fonts to be
+    honest, Lato is another that comes to mind).
+
     #+begin_src emacs-lisp
       (defvar aum/default-font-size 120) ;; variable. Maybe use noweb in org or some other config file?
       (use-package emacs
@@ -134,15 +136,15 @@
       (use-package all-the-icons)
     #+end_src
 
-*** Theme setup 
-    
+*** Theme setup
+
     I mostly favour the [[https://github.com/mswift42/silkworm-theme][silkworm theme]], although [[https://github.com/vallyscode/cloud-theme][cloud]] and [[https://github.com/bbatsov/solarized-emacs][gruvbox]] (via
     solarized) are favourites of mine. Honorable mentions: [[https://github.com/arcticicestudio/nord-emacs][norf]] (pun intended),
     [[https://github.com/emacsfodder/emacs-theme-darktooth][darktooth]].
-    
+
     I tend to favour light themes nowadays as they feel easier on my eyes (this
     is totally subjective).
-    
+
     #+begin_src emacs-lisp
       (use-package silkworm-theme
         :ensure t
@@ -153,25 +155,25 @@
 *** Modeline
 
     Doom modeline seems a good option.
-    
+
     #+begin_src emacs-lisp
       (use-package doom-modeline
         :ensure t
         :init (doom-modeline-mode 1)
         :custom ((doom-modeline-height 35)))
     #+end_src
-    
+
 * Keybindings
 
   Most of the keybinding confiuration can be relegated to modules. However, evil
   and general are pretty much needed here.
-  
+
   #+begin_src emacs-lisp
     (use-package emacs
       :config
       (global-set-key (kbd "<escape>") 'keyboard-escape-quit))
   #+end_src
-  
+
 *** General
 
   Let's first configure =general=:
@@ -186,9 +188,9 @@
 
     (require 'aum-keybindings)
   #+end_src
-  
+
 *** Evil
-  
+
   Even evil has its uses sometimes.
 
   #+begin_src emacs-lisp
@@ -226,13 +228,13 @@
       :init
       (evil-commentary-mode))
   #+end_src
-  
+
 *** Which-key
-    
+
     =which-key= is a pretty essential package to me. Sometimes there are just
     too many things to remember (altough I reckon that M-x can be used in these
     cases, but you need to remember certain keywords).
-    
+
     #+begin_src emacs-lisp
       (use-package which-key
         :ensure t
@@ -242,13 +244,36 @@
         (setq which-key-idle-delay .3))
     #+end_src
 
+*** hydra
+
+    Hydras are addictive.
+
+    #+begin_src emacs-lisp
+      (use-package hydra
+	:config
+	;; (use-package hydra-posframe
+	;;   :custom
+	;;   (hydra-posframe-parameters
+	;;     '((left-fringe . 5)
+	;; 	(right-fringe . 5)))
+	;;   :custom-face
+	;;   (hydra-posframe-border-face ((t (:background "#6272a4"))))
+	;;   :hook (after-init . hydra-posframe-enable))
+	(use-package major-mode-hydra
+	  :demand t
+	  :ensure t
+	  :general
+	  (:states '(normal visual)
+	   "," 'major-mode-hydra)))
+    #+end_src
+
 * Search
 
 ** ivy, counsel, swiper
-   
+
    Always used Helm but I wanna try these now. Btw, do I really need all these
    bindings being defined HERE?
-   
+
    #+begin_src emacs-lisp
      (use-package ivy
        :diminish
@@ -279,26 +304,55 @@
        :config
        (counsel-mode 1))
    #+end_src
-    
+
 * OS
 
   This section will be used for system related stuff, like file manager (dired).
-  
+
 * Cursor
 
   Inspired by Ladicle's way of organizing his/her configuration, this section deals with
-  stuff related to the cursor. For example, multiple cursors, avy or ace.
+  stuff related to the cursor. For example, multiple cursors (via =evil-mc= and
+  =evil-multiedit=), avy or ace.
 
 ** Multiple Cursors
 
+   Since I use evil-mode (which tbh after learning the power of hydras I feel like I
+   could live whitout, but I'll get into that in future versions of this file), I will
+   need to use [[https://github.com/gabesoft/evil-mc][evil-mc]] and [[https://github.com/hlissner/evil-multiedit][evil-multiedit]].
+
    #+begin_src emacs-lisp
-     (use-package multiple-cursors
-       ;; :functions hydra-multiple-cursors
-       ;; :bind
-       ;; ("M-u" . hydra-multiple-cursors/body)
-       ;; :config
-       ;; hydra goes here
-       )
+     (use-package evil-mc
+       :functions hydra-multiple-cursors
+       :bind
+       ("M-u" . hydra-multiple-cursors/body)
+       :config
+       (with-eval-after-load 'hydra
+	 (defhydra hydra-multiple-cursors (:color pink :hint nil)
+     "
+									     ╔════════╗
+	 Point^^^^^^             Misc^^            Insert                            ║ Cursor ║
+       ──────────────────────────────────────────────────────────────────────╨────────╜
+	  _k_    _K_    _M-k_    [_l_] edit lines  [_i_] 0...
+	  ^↑^    ^↑^     ^↑^  [_m_] mark all    [_a_] letters
+	 mark^^ skip^^^ un-mk^   [_s_] sort
+	  ^↓^    ^↓^     ^↓^
+	  _j_    _J_    _M-j_
+       ╭──────────────────────────────────────────────────────────────────────────────╯
+				[_q_]: quit
+     "
+	       ("l" mc/edit-lines :exit t)
+	       ("m" mc/mark-all-like-this :exit t)
+	       ("j" mc/mark-next-like-this)
+	       ("J" mc/skip-to-next-like-this)
+	       ("M-j" mc/unmark-next-like-this)
+	       ("k" mc/mark-previous-like-this)
+	       ("K" mc/skip-to-previous-like-this)
+	       ("M-k" mc/unmark-previous-like-this)
+	       ("s" mc/mark-all-in-region-regexp :exit t)
+	       ("i" mc/insert-numbers :exit t)
+	       ("a" mc/insert-letters :exit t)
+	       ("q" nil))))
    #+end_src
 
 ** avy/ace
@@ -318,11 +372,11 @@
    #+end_src
 
 * TODO Document production
-  
+
 ** TODO General settings
 
    Things like flyspell, writeroom mode, or ivy-bibtex.
-   
+
    #+begin_src emacs-lisp :tangle no
      (use-package guess-language         ; Automatically detect language for Flyspell
        ;; :ensure t
@@ -330,24 +384,38 @@
        :init (add-hook 'text-mode-hook #'guess-language-mode)
        :config
        (setq guess-language-langcodes '((en . ("en_GB" "English"))
-                                        (es . ("es_SP" "Spanish")))
-             guess-language-languages '(en es)
-             guess-language-min-paragraph-length 45)
+					(es . ("es_SP" "Spanish")))
+	     guess-language-languages '(en es)
+	     guess-language-min-paragraph-length 45)
        :diminish guess-language-mode)
+
+     (use-package olivetti
+       :diminish
+       :config
+       (progn
+	 (setf olivetti-body-width 100)
+	 (visual-line-mode))
+       :general
+       (:states '(normal motion visual insert emacs)
+	:keymaps 'override
+	:prefix "SPC"
+	:non-normal-prefix "C-SPC"
+	"bo" 'olivetti-mode)
+     )
    #+end_src
 
 ** TODO Org
-   
+
    Org has too many configurations. I defer it to modules: =aum-org-basic= for
    basic configuration, then more specialized modules like =aum-org-agenda= and
    =aum-org-exporters=.
-   
+
    #+begin_src emacs-lisp
    (require 'aum-org-basic)
    #+end_src
 
 ** Markdown
-   
+
    Possibly the most extended markup language on the internet. Only set up
    minimal settings for now.
 
@@ -355,14 +423,35 @@
      (use-package markdown-mode
        :commands (markdown-mode gfm-mode)
        :mode (("\\.markdown\\'" . markdown-mode)
-              ("\\.md\\'"       . markdown-mode)
-              ("README\\.md\\'" . gfm-mode))
+	      ("\\.md\\'"       . markdown-mode)
+	      ("README\\.md\\'" . gfm-mode))
        :config
+       (use-package edit-indirect)
        (setq markdown-enable-math nil
-             markdown-enable-wiki-links t
-             markdown-nested-imenu-heading-index t
-             markdown-footnote-location 'immediately
-             markdown-use-pandoc-style-yaml-metadata t))
+	     markdown-enable-wiki-links t
+	     markdown-nested-imenu-heading-index t
+	     markdown-asymmetric-header t
+	     markdown-footnote-location 'immediately
+	     markdown-use-pandoc-style-yaml-metadata t)
+       :mode-hydra
+       ((:title (with-octicon "markdown" "Markdown mode" 1 -0.05) :quit-key "q")
+	("Navigation"
+	 (("k" markdown-outline-previous-same-level "↑" :exit nil)
+	  ("j" markdown-outline-next-same-level "↓" :exit nil)
+	  ("i" markdown-outline-up "up level" :exit nil)
+	  ("h" markdown-outline-previous "prev" :exit nil)
+	  ("l" markdown-outline-next "next" :exit nil))
+	 "Headers"
+	 (("K" markdown-move-subtree-up "move subtree up" :exit nil)
+	  ("J" markdown-move-subtree-down "move subtree down" :exit nil)
+	  ("H" markdown-move-up "move header up" :exit nil)
+	  ("L" markdown-move-down "move header down" :exit nil)
+	  ("C-j" markdown-promote-subtree "promote subtree" :exit nil)
+	  ("C-k" markdown-demote-subtree "demote subtree" :exit nil)
+	  )
+	 )
+	)
+       )
        ;; :hook
        ;; ('markdown-mode-hook . '(lambda ()
        ;;                           ;; (turn-on-flyspell)
@@ -373,11 +462,11 @@
    #+end_src
 
 ** LaTeX
-   
+
    The basic settings for auctex. Take into account that many LaTeX settings are
    being pasted from mclear dotemacs, so further changes will be made in the
    future. This is only the base.
-   
+
    #+begin_src emacs-lisp
      (use-package auctex
        :mode (("\\.tex\\'" . latex-mode)
@@ -395,9 +484,9 @@
                TeX-PDF-mode t)
          (setq-default TeX-master nil)))
    #+end_src
-   
+
    Preview latex. These scale settings will need to be tuned, possibly.
-   
+
    #+begin_src emacs-lisp :tangle no
      (use-package preview-mode
        :after auctex
@@ -409,7 +498,7 @@
                                                  (* (/ 10.0 (preview-document-pt))
                                                     preview-scale)))))
    #+end_src
-   
+
    Finally, reftex and bibtex/biblatex support.
 
    #+begin_src emacs-lisp
@@ -429,18 +518,18 @@
 	 (setq bibtex-align-at-equal-sign t)
 	 (add-hook 'bibtex-mode-hook (lambda () (set-fill-column 120)))))
    #+end_src
-   
+
    Extra: pdf-tools for better pdf viewing inside emacs.
-   
+
    #+begin_src emacs-lisp
    (pdf-loader-install)
    #+end_src
 
 ** pandoc
-   
+
    I like pandoc for document conversion, as it offers several capabilities that other
    workflows lack. For this package I use a minimal setup.
-   
+
    #+begin_src emacs-lisp
      (use-package pandoc-mode
        :ensure t
@@ -457,13 +546,13 @@
 	   (pandoc-main-hydra/body))
 	 (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)))
    #+end_src
-   
+
 * Development
-  
+
 ** lsp
-   
+
 *** Basic configuration and setup
-   
+
    . Maybe move this to its own top level header? I might need lsp for LaTeX too.
 
    #+begin_src emacs-lisp
@@ -481,7 +570,7 @@
    #+end_src
 
 *** lsp-ui
-    
+
     #+begin_src emacs-lisp
       (use-package lsp-ui
         :after lsp-mode
@@ -490,7 +579,7 @@
     #+end_src
 
 *** lsp-treemacs
-    
+
     I don't use treemacs much but this is needed for nice symbols in the lsp
     breadcrumb, plus I like the concept of tree views, just not use them much
     now (but may be useful in the future).
@@ -501,62 +590,106 @@
     #+end_src
 
 *** lsp-ivy
-    
+
     #+begin_src emacs-lisp
       (use-package lsp-ivy)
     #+end_src
 
-** Python
-   
-   LSP needs a language server. I think I will use pyright, as it seems the
-   quickest nowadays. Sometimes MS does things right I guess.
+*** lsp hydra
 
-   #+begin_src emacs-lisp
-     (use-package lsp-pyright
-       :ensure t
-       :hook (python-mode . (lambda ()
-                               (require 'lsp-pyright)
-                               (lsp-deferred))))  ; or lsp
-   #+end_src
-   
-*** Anaconda                                                          :FIXME:
-    
-    Ok so the thing is, I use anaconda for most python development (ML and
-    Tensorflow gpu -- nuff said). This means I would like to have some way to
-    manage my environments inside ॐmacs. Fortunately, there is [[https://github.com/necaris/conda.el][conda.el]].
-
-:FIXME:
-tensorflow-gpu works correctly in kaggle env, tfgpu env causes pyright server
-error
-:END:
-    
     #+begin_src emacs-lisp
-      (use-package conda
-        :config
-        ;; Need to do this a bit better, but ~ doesnt work...
-        (setq conda-anaconda-home "/home/adrian/miniconda3"
-              conda-env-home-directory "/home/adrian/miniconda3"))
+      (pretty-hydra-define lsp-hydra
+	(:foreign-keys warn :title "LSP" :quit-key "q")
+	("Buffer"
+	 (("=" lsp-format-buffer)
+	  ("m" lsp-ui-imenu)
+	  ("x" lsp-execute-code-action))
+	 "Server"
+	 (("C-s" lsp-describe-session)
+	  ("C-r" lsp-restart-workspace)
+	  ("S" lsp-shutdown-workspace))
+	 "Symbol"
+	 (("d" lsp-find-declaration)
+	  ("D" lsp-ui-peek-find-definitions)
+	  ("R" lsp-ui-peek-find-references)
+	  ("i" lsp-ui-peek-find-implementation))
+	 ""
+	 (("t" lsp-find-type-definition)
+	  ("s" lsp-signature-help)
+	  ("o" lsp-describe-thing-at-point)
+	  ("r" lsp-rename))
+	 ))
     #+end_src
 
-:FEATURE:
-I want to add a hook that restarts the LSP server automatically every time I
-change envs, but this doesn't work.
-#+begin_src emacs-lisp :tangle no
-:hook
-(conda-env-activate . lsp-workspace-restart)#+end_src
- #+end_src
-:END:
+** Python
 
-    
+   LSP needs a language server. I think I will use pyright, as it seems the
+   quickest nowadays. Sometimes MS does things right I guess.
+   I also use conda and define a helpful hydra.
+
+    #+begin_src emacs-lisp
+      (use-package python-mode
+	:config
+	(use-package lsp-pyright
+	  :ensure t
+	  :hook (python-mode . (lambda ()
+				 (require 'lsp-pyright)
+				 (lsp-deferred))))
+	(use-package conda
+	  :config
+	  ;; Need to do this a bit better, but ~ doesnt work...
+	  (setq conda-anaconda-home "/home/adrian/miniconda3"
+		conda-env-home-directory "/home/adrian/miniconda3"))
+	:mode-hydra
+	((:title "Python mode")
+	 ("Conda"
+	 (("a" conda-env-activate "activate env")
+	  ("d" conda-env-deactivate "deactivate env")
+	  ("l" conda-env-list "list environments")
+	  ("M" conda-env-autoactivate-mode "autoactivate mode" :toggle t)
+	  ("P" conda-env-activate-path "activate path")
+	  ("B" conda-env-activate-for-buffer "activate for buffer"))
+	 "LSP" (("C-l" lsp-hydra/body "lsp hydra"))
+	 )))
+
+    #+end_src
+
 *** TODO IPython
+
     Just like anaconda, IPython is fundamental for data science workflow.
+    I will have to copy from scimax basically.
+
+** Elisp
+
+   Even if I'm not much of a emacs hacker nowadays, as far as you plan on making your
+   own config you are going to eventually delve into emacs-lisp. Also, this hydra serves
+   to test =major-mode-hydra=.
+
+   #+begin_src emacs-lisp
+     (major-mode-hydra-define emacs-lisp-mode nil
+       ("Eval"
+	(("b" eval-buffer "buffer")
+	 ("e" eval-defun "defun")
+	 ("r" eval-region "region"))
+	"REPL"
+	(("I" ielm "ielm"))
+	"Test"
+	(("t" ert "prompt")
+	 ("T" (ert t) "all")
+	 ("F" (ert :failed) "failed"))
+	"Doc"
+	(("d" describe-foo-at-point "thing-at-pt")
+	 ("f" describe-function "function")
+	 ("v" describe-variable "variable")
+	 ("i" info-lookup-symbol "info lookup"))))
+   #+end_src
 
 * TODO Completion
 ** TODO Yasnippet
 ** Company
-   
+
 *** Basic configuration and setup
-    
+
     Basically an incredible QOL plugin.
 
     #+begin_src emacs-lisp
@@ -572,15 +705,15 @@ change envs, but this doesn't work.
         (company-minimum-prefix-length 1)
         (company-idle-delay 0.0))
     #+end_src
-   
+
 *** GUI improvements                                                  :FIXME:
 
     Install company-box to have a nicer completion box.
     Currently broken (doesn't display properly).
-    
+
     =company-box= has the variable =company-box-icons-alist= that can be set to
     =all-the-icons=, which I desire.
-    
+
     #+begin_src emacs-lisp :tangle no
       (use-package company-box
         :diminish company-box-mode
@@ -588,7 +721,7 @@ change envs, but this doesn't work.
     #+end_src
 
 ** Smartparens
-   
+
    Smartparens is a power tool that not only completes pairs of characters but
    also lets you navigate the structure pretty easily.
 
@@ -603,15 +736,15 @@ change envs, but this doesn't work.
        (sp-pair "<" ">" :actions '(wrap))
        (sp-pair "$" "$" :actions '(wrap)))
    #+end_src
-    
+
 * TODO Productivity
-  
+
 ** mu4e
 
 * TODO Project
 
 ** magit
-   
+
    Magit is probably the thing that hooks me too emacs more than anything (yes,
    even org-mode). I feel extremely handicapped without it now.
 
@@ -622,19 +755,19 @@ change envs, but this doesn't work.
    #+end_src
 
 ** forge
-   
+
    Forge is sort of a magit submodule that lets you interact with github, gitlab
    and other git-based online repos through their API. I don't need it now, but
    sometime I will probably want to.
-   
+
    Btw they need tokens for the REST stuff, so see [[https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started][getting started]] and token creation.
-   
+
    #+begin_src emacs-lisp :tangle no
      (use-package forge)
    #+end_src
 
 ** Projectile
-   
+
    #+begin_src emacs-lisp
      (use-package projectile
        :diminish projectile-mode
@@ -648,7 +781,7 @@ change envs, but this doesn't work.
      (use-package counsel-projectile
        :config (counsel-projectile-mode 1))
    #+end_src
-   
+
 ** TODO persp-mode
 
 * Local variables
