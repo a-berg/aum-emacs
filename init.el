@@ -40,6 +40,8 @@
 	auto-save-default nil
 	create-lockfiles nil))
 
+(use-package validate)
+
 (use-package emacs
   :config
   (setq inhibit-startup-message t
@@ -133,7 +135,9 @@
 (use-package evil-surround
   :ensure t
   :config
-  (global-evil-surround-mode 1))
+  (global-evil-surround-mode 1)
+  (evil-define-key 'visual evil-surround-mode-map "S" 'evil-substitute)
+  (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region))
 
 (use-package evil-commentary
   :ensure t
@@ -241,29 +245,45 @@
   (use-package edit-indirect)
   (setq markdown-enable-math nil
 	markdown-enable-wiki-links t
-	markdown-nested-imenu-heading-index t
+	;; markdown-nested-imen u-heading-index t
 	markdown-asymmetric-header t
 	markdown-footnote-location 'immediately
 	markdown-use-pandoc-style-yaml-metadata t)
   :mode-hydra
   ((:title (with-octicon "markdown" "Markdown mode" 1 -0.05) :quit-key "q")
-   ("Navigation"
-    (("k" markdown-outline-previous-same-level "↑" :exit nil)
-     ("j" markdown-outline-next-same-level "↓" :exit nil)
-     ("i" markdown-outline-up "up level" :exit nil)
-     ("h" markdown-outline-previous "prev" :exit nil)
-     ("l" markdown-outline-next "next" :exit nil))
-    "Headers"
+   ("Format"
+    (("c" markdown-insert-code "code")
+     ("b" markdown-insert-bold "bold")
+     ("i" markdown-insert-italic "italic")
+     ("s" markdown-insert-strike-through "strikethrough")
+     )
+    "Insert"
+    (("`" markdown-insert-gfm-code-block "code block")
+     ("h" markdown-insert-header "header")
+     ("f" markdown-insert-footnote "footer")
+     ("l" markdown-insert-link "link")
+     )
+    "Other"
+    (("N" markdown-navigation-hydra/body "navigation")
+     ("P" run-pandoc "pandoc")))
+   )
+  :pretty-hydra
+  (markdown-navigation-hydra
+   (:title "✜ Navigation" :quit-key "q")
+   ("Movement"
+    (("k" markdown-outline-previous "↑" :exit nil)
+     ("j" markdown-outline-next "↓" :exit nil)
+     ("u" markdown-outline-up "up level" :exit nil)
+     ("p" markdown-outline-previous-same-level "prev" :exit nil)
+     ("n" markdown-outline-next-same-level "next" :exit nil))
+    "Rearrange"
     (("K" markdown-move-subtree-up "move subtree up" :exit nil)
      ("J" markdown-move-subtree-down "move subtree down" :exit nil)
-     ("H" markdown-move-up "move header up" :exit nil)
-     ("L" markdown-move-down "move header down" :exit nil)
-     ("C-j" markdown-promote-subtree "promote subtree" :exit nil)
-     ("C-k" markdown-demote-subtree "demote subtree" :exit nil)
-     )
-    )
-   )
-  )
+     ("C-k" markdown-move-up "move header up" :exit nil)
+     ("C-j" markdown-move-down "move header down" :exit nil)
+     ("[" markdown-promote-subtree "promote subtree" :exit nil)
+     ("]" markdown-demote-subtree "demote subtree" :exit nil)))))
+
   ;; :hook
   ;; ('markdown-mode-hook . '(lambda ()
   ;;                           ;; (turn-on-flyspell)
@@ -320,6 +340,8 @@
       (pandoc-mode)
       (pandoc-main-hydra/body))
     (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)))
+
+(use-package yaml-mode)
 
 (defun aum/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
@@ -378,15 +400,21 @@
     (setq conda-anaconda-home "/home/adrian/miniconda3"
 	  conda-env-home-directory "/home/adrian/miniconda3"))
   :mode-hydra
-  ((:title "Python mode")
-   ("Conda"
+  ((:title "Python mode" :quit-key "q")
+   ("conda/envs"
    (("a" conda-env-activate "activate env")
-    ("d" conda-env-deactivate "deactivate env")
-    ("l" conda-env-list "list environments")
-    ("M" conda-env-autoactivate-mode "autoactivate mode" :toggle t)
-    ("P" conda-env-activate-path "activate path")
-    ("B" conda-env-activate-for-buffer "activate for buffer"))
-   "LSP" (("C-l" lsp-hydra/body "lsp hydra"))
+    ("d" conda-env-deactivate "deactivate env"))
+   "LSP"
+   (("L" lsp-hydra/body "lsp hydra"))
+   "✜ Navigation"
+   (("j" python-nav-forward-defun "next defun" :exit nil)
+    ("k" python-nav-backward-defun "prev defun" :exit nil)
+    ("$" python-nav-end-of-defun "end of defun" :exit nil))
+   "Eval"
+   (("'" run-python "new shell")
+    ("b" python-shell-send-buffer "buffer")
+    ("e" python-shell-send-defun "defun")
+    ("r" python-shell-send-region "region"))
    )))
 
 (major-mode-hydra-define emacs-lisp-mode nil
@@ -405,6 +433,22 @@
     ("f" describe-function "function")
     ("v" describe-variable "variable")
     ("i" info-lookup-symbol "info lookup"))))
+
+(use-package yasnippet
+  :diminish yas-minor-mode
+  :config
+  (validate-setq
+   yas-verbosity 1                      ; No need to be so verbose
+   yas-wrap-around-region t)
+
+  (with-eval-after-load 'yasnippet
+    (setq yas-snippet-dirs '(yasnippet-snippets-dir)))
+
+  (yas-reload-all)
+  (yas-global-mode))
+
+(use-package yasnippet-snippets
+  :ensure t)
 
 (use-package company
   :diminish company-mode
@@ -443,24 +487,3 @@
 
 (use-package counsel-projectile
   :config (counsel-projectile-mode 1))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (olivetti olivetti-mode pdf-tools which-key use-package smartparens silkworm-theme python-mode pandoc-mode org-superstar mwim multiple-cursors major-mode-hydra magit lsp-ui lsp-treemacs lsp-pyright lsp-ivy ivy-rich general evil-surround evil-mc evil-commentary evil-collection edit-indirect doom-modeline counsel-projectile conda company auctex)))
- '(safe-local-variable-values
-   (quote
-    ((eval add-hook
-	   (quote after-save-hook)
-	   (lambda nil
-	     (org-babel-tangle))
-	   nil t)))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

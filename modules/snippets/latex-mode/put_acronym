@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: PutAcronym
+# key: acr
+# --
+\ac{$1}$0

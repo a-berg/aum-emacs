@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: DeclareAcronym
+# key: dacro
+# --
+
+\DeclareAcronym{$1}{
+  short=$2,
+  long=$3,
+  short-format = \textsc,
+}
+$0

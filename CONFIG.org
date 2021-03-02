@@ -8,8 +8,6 @@
 
   Suggested packages:
     + persp mode
-    + yasnippet
-    + writeroom
     + iedit?
 
 ** Set up
@@ -63,6 +61,12 @@
        (setq make-backup-files nil
 	     auto-save-default nil
 	     create-lockfiles nil))
+   #+end_src
+
+   Other useful packages such as =validate.el=.
+
+   #+begin_src emacs-lisp
+     (use-package validate)
    #+end_src
 
 ** GUI/Fonts
@@ -221,7 +225,9 @@
     (use-package evil-surround
       :ensure t
       :config
-      (global-evil-surround-mode 1))
+      (global-evil-surround-mode 1)
+      (evil-define-key 'visual evil-surround-mode-map "S" 'evil-substitute)
+      (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region))
 
     (use-package evil-commentary
       :ensure t
@@ -393,14 +399,14 @@
        :diminish
        :config
        (progn
-	 (setf olivetti-body-width 100)
-	 (visual-line-mode))
-       :general
-       (:states '(normal motion visual insert emacs)
-	:keymaps 'override
-	:prefix "SPC"
-	:non-normal-prefix "C-SPC"
-	"bo" 'olivetti-mode)
+	 (setq olivetti-body-width 0.65)
+	 (setq olivetti-minimum-body-width 88)
+	 (setq olivetti-recall-visual-line-mode-entry-state t)
+	 (visual-line-mode)
+	 )
+       ;; (progn
+       ;; 	 (setf olivetti-body-width 100)
+       ;; 	 (visual-line-mode))
      )
    #+end_src
 
@@ -429,29 +435,45 @@
        (use-package edit-indirect)
        (setq markdown-enable-math nil
 	     markdown-enable-wiki-links t
-	     markdown-nested-imenu-heading-index t
+	     ;; markdown-nested-imen u-heading-index t
 	     markdown-asymmetric-header t
 	     markdown-footnote-location 'immediately
 	     markdown-use-pandoc-style-yaml-metadata t)
        :mode-hydra
        ((:title (with-octicon "markdown" "Markdown mode" 1 -0.05) :quit-key "q")
-	("Navigation"
-	 (("k" markdown-outline-previous-same-level "↑" :exit nil)
-	  ("j" markdown-outline-next-same-level "↓" :exit nil)
-	  ("i" markdown-outline-up "up level" :exit nil)
-	  ("h" markdown-outline-previous "prev" :exit nil)
-	  ("l" markdown-outline-next "next" :exit nil))
-	 "Headers"
+	("Format"
+	 (("c" markdown-insert-code "code")
+	  ("b" markdown-insert-bold "bold")
+	  ("i" markdown-insert-italic "italic")
+	  ("s" markdown-insert-strike-through "strikethrough")
+	  )
+	 "Insert"
+	 (("`" markdown-insert-gfm-code-block "code block")
+	  ("h" markdown-insert-header "header")
+	  ("f" markdown-insert-footnote "footer")
+	  ("l" markdown-insert-link "link")
+	  )
+	 "Other"
+	 (("N" markdown-navigation-hydra/body "navigation")
+	  ("P" run-pandoc "pandoc")))
+	)
+       :pretty-hydra
+       (markdown-navigation-hydra
+	(:title "✜ Navigation" :quit-key "q")
+	("Movement"
+	 (("k" markdown-outline-previous "↑" :exit nil)
+	  ("j" markdown-outline-next "↓" :exit nil)
+	  ("u" markdown-outline-up "up level" :exit nil)
+	  ("p" markdown-outline-previous-same-level "prev" :exit nil)
+	  ("n" markdown-outline-next-same-level "next" :exit nil))
+	 "Rearrange"
 	 (("K" markdown-move-subtree-up "move subtree up" :exit nil)
 	  ("J" markdown-move-subtree-down "move subtree down" :exit nil)
-	  ("H" markdown-move-up "move header up" :exit nil)
-	  ("L" markdown-move-down "move header down" :exit nil)
-	  ("C-j" markdown-promote-subtree "promote subtree" :exit nil)
-	  ("C-k" markdown-demote-subtree "demote subtree" :exit nil)
-	  )
-	 )
-	)
-       )
+	  ("C-k" markdown-move-up "move header up" :exit nil)
+	  ("C-j" markdown-move-down "move header down" :exit nil)
+	  ("[" markdown-promote-subtree "promote subtree" :exit nil)
+	  ("]" markdown-demote-subtree "demote subtree" :exit nil)))))
+
        ;; :hook
        ;; ('markdown-mode-hook . '(lambda ()
        ;;                           ;; (turn-on-flyspell)
@@ -547,6 +569,16 @@
 	 (add-hook 'pandoc-mode-hook 'pandoc-load-default-settings)))
    #+end_src
 
+** Other markup languages
+
+   Other markup languages (usually used for configuration) go here. For example, YAML.
+
+*** YAML
+
+    #+begin_src emacs-lisp
+      (use-package yaml-mode)
+    #+end_src
+
 * Development
 
 ** lsp
@@ -641,17 +673,33 @@
 	  (setq conda-anaconda-home "/home/adrian/miniconda3"
 		conda-env-home-directory "/home/adrian/miniconda3"))
 	:mode-hydra
-	((:title "Python mode")
-	 ("Conda"
+	((:title "Python mode" :quit-key "q")
+	 ("conda/envs"
 	 (("a" conda-env-activate "activate env")
-	  ("d" conda-env-deactivate "deactivate env")
-	  ("l" conda-env-list "list environments")
-	  ("M" conda-env-autoactivate-mode "autoactivate mode" :toggle t)
-	  ("P" conda-env-activate-path "activate path")
-	  ("B" conda-env-activate-for-buffer "activate for buffer"))
-	 "LSP" (("C-l" lsp-hydra/body "lsp hydra"))
+	  ("d" conda-env-deactivate "deactivate env"))
+	 "LSP"
+	 (("L" lsp-hydra/body "lsp hydra"))
+	 "✜ Navigation"
+	 (("j" python-nav-forward-defun "next defun" :exit nil)
+	  ("k" python-nav-backward-defun "prev defun" :exit nil)
+	  ("$" python-nav-end-of-defun "end of defun" :exit nil))
+	 "Eval"
+	 (("'" run-python "new shell")
+	  ("b" python-shell-send-buffer "buffer")
+	  ("e" python-shell-send-defun "defun")
+	  ("r" python-shell-send-region "region"))
 	 )))
+    #+end_src
 
+    #+begin_src emacs-lisp :tangle no
+      ;; ("+" (call-interactively '(counsel-M-x "python nav")) "more")
+      ;; (with-faicon "terminal" "Eval" 1 -0.05)
+
+      ;; ("l" conda-env-list "list environments")
+      ;; ("M" conda-env-autoactivate-mode "autoactivate mode" :toggle t)
+      ;; ("P" conda-env-activate-path "activate path")
+      ;; ("B" conda-env-activate-for-buffer "activate for buffer")
+      ;; (with-octicon "package" "conda/envs" 1 -0.05)
     #+end_src
 
 *** TODO IPython
@@ -686,6 +734,28 @@
 
 * TODO Completion
 ** TODO Yasnippet
+
+   Possibly the best snippet engine both in an outside of Emacs (best thing: it lets you
+   evaluate emacs-lisp code as part of snippet expansion).
+
+   #+begin_src emacs-lisp
+     (use-package yasnippet
+       :diminish yas-minor-mode
+       :config
+       (validate-setq
+	yas-verbosity 1                      ; No need to be so verbose
+	yas-wrap-around-region t)
+
+       (with-eval-after-load 'yasnippet
+	 (setq yas-snippet-dirs '(yasnippet-snippets-dir)))
+
+       (yas-reload-all)
+       (yas-global-mode))
+
+     (use-package yasnippet-snippets
+       :ensure t)
+   #+end_src
+
 ** Company
 
 *** Basic configuration and setup

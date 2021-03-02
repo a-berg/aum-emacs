@@ -9,6 +9,12 @@
    "TAB" 'aum/switch-to-previous-buffer
    )
 
+  (general-create-definer aum/spc-definer
+    :states '(normal motion visual insert emacs)
+    :prefix "SPC"
+    :non-normal-prefix "M-SPC"
+    :keymaps 'override)
+
 ;;;;  Applications Keybindings
   (general-define-key
    :states '(normal motion visual insert emacs)
@@ -104,8 +110,10 @@
    ;; "gp" 'git-gutter:previous-hunk
    "gr" 'magit-reflog
    "gs" 'magit-status)
+
+  (aum/spc-definer
+   "t" '(:ignore t :which-key "Toggles")
+   "to" 'olivetti-mode)
 )
-
-
 
 (provide 'aum-keybindings)
