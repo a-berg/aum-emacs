@@ -112,8 +112,13 @@
    "gs" 'magit-status)
 
   (aum/spc-definer
-   "t" '(:ignore t :which-key "Toggles")
-   "to" 'olivetti-mode)
+   "t" '(aum-toggles/body :which-key "toggles (hydra)"))
+
+  (aum/spc-definer
+   "w" '(aum-window/body :which-key "windows (hydra)"))
+
+  (aum/spc-definer
+    "y" '(Yasnippet/body :which-key "snippets"))
 )
 
 (provide 'aum-keybindings)

@@ -17,7 +17,7 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(setq user-emacs-directory "~/code/personal/aum-emacs/modules")
+(setq user-emacs-directory "~/dotfiles/aum-emacs/modules")
 (add-to-list 'load-path user-emacs-directory)
 
 (require 'aum-functions-macros)
@@ -119,7 +119,7 @@
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
 
-  ;; Use visual line motions even outside of visual-line-mode buffers
+  ;; Use visual line motions even outside_ of visual-line-mode buffers
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
@@ -137,7 +137,14 @@
   :config
   (global-evil-surround-mode 1)
   (evil-define-key 'visual evil-surround-mode-map "S" 'evil-substitute)
-  (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region))
+  (evil-define-key 'visual evil-surround-mode-map "s" 'evil-surround-region)
+  (evil-add-to-alist 'evil-surround-pairs-alist
+   ?\( '("(" . ")")
+   ?\[ '("[" . "]")
+   ?\{ '("{" . "}")
+   ?\) '("( " . " )")
+   ?\] '("[ " . " ]")
+   ?\} '("{ " . " }")))
 
 (use-package evil-commentary
   :ensure t
@@ -166,7 +173,19 @@
     :ensure t
     :general
     (:states '(normal visual)
-     "," 'major-mode-hydra)))
+	     "," 'major-mode-hydra)))
+
+(require 'aum-hydras)
+
+(use-package hydra-posframe
+  :load-path "//home/adrian/code/ext/github.com/Ladicle/hydra-posframe"
+  :hook (after-init . hydra-posframe-enable)
+  :custom
+  (hydra-posframe-parameters
+   '((left-fringe . 5)
+     (right-fringe . 5))))
+
+
 
 (use-package ivy
   :diminish
@@ -198,36 +217,22 @@
   (counsel-mode 1))
 
 (use-package evil-mc
-  :functions hydra-multiple-cursors
-  :bind
-  ("M-u" . hydra-multiple-cursors/body)
+  ;; :functions
   :config
-  (with-eval-after-load 'hydra
-    (defhydra hydra-multiple-cursors (:color pink :hint nil)
-"
-									╔════════╗
-    Point^^^^^^             Misc^^            Insert                            ║ Cursor ║
-  ──────────────────────────────────────────────────────────────────────╨────────╜
-     _k_    _K_    _M-k_    [_l_] edit lines  [_i_] 0...
-     ^↑^    ^↑^     ^↑^  [_m_] mark all    [_a_] letters
-    mark^^ skip^^^ un-mk^   [_s_] sort
-     ^↓^    ^↓^     ^↓^
-     _j_    _J_    _M-j_
-  ╭──────────────────────────────────────────────────────────────────────────────╯
-			   [_q_]: quit
-"
-	  ("l" mc/edit-lines :exit t)
-	  ("m" mc/mark-all-like-this :exit t)
-	  ("j" mc/mark-next-like-this)
-	  ("J" mc/skip-to-next-like-this)
-	  ("M-j" mc/unmark-next-like-this)
-	  ("k" mc/mark-previous-like-this)
-	  ("K" mc/skip-to-previous-like-this)
-	  ("M-k" mc/unmark-previous-like-this)
-	  ("s" mc/mark-all-in-region-regexp :exit t)
-	  ("i" mc/insert-numbers :exit t)
-	  ("a" mc/insert-letters :exit t)
-	  ("q" nil))))
+  (global-evil-mc-mode  1)
+  :bind
+  ("M-u" . evil-mc-hydra/body)
+  :pretty-hydra
+  ((:title (with-faicon "i-cursor" "MULTIPLE CURSORS") :quit-key "q" :color amaranth)
+   ("Basic"
+    (("a" evil-mc-make-all-cursors "make all")
+     ("u" evil-mc-undo-all-cursors "undo all")
+     ("j" evil-mc-make-and-goto-next-match "make & goto next")
+     ("k" evil-mc-make-and-goto-prev-match "make & goto prev"))
+    ""
+    (("<SPC>" nil "quit hydra" :color blue))
+    ;; ("Skip" (("" nil "")))
+    )))
 
 (use-package mwim
   :bind
@@ -269,7 +274,7 @@
    )
   :pretty-hydra
   (markdown-navigation-hydra
-   (:title "✜ Navigation" :quit-key "q")
+   (:title "✜ NAVIGATION" :quit-key "q" :color amaranth)
    ("Movement"
     (("k" markdown-outline-previous "↑" :exit nil)
      ("j" markdown-outline-next "↓" :exit nil)
@@ -389,11 +394,6 @@
 
 (use-package python-mode
   :config
-  (use-package lsp-pyright
-    :ensure t
-    :hook (python-mode . (lambda ()
-			   (require 'lsp-pyright)
-			   (lsp-deferred))))
   (use-package conda
     :config
     ;; Need to do this a bit better, but ~ doesnt work...
@@ -417,7 +417,23 @@
     ("r" python-shell-send-region "region"))
    )))
 
-(major-mode-hydra-define emacs-lisp-mode nil
+(use-package lsp-mode
+  :config
+  (lsp-register-custom-settings
+   '(("pyls.plugins.pyls_mypy.enabled" t t)
+     ("pyls.plugins.pyls_mypy.live_mode" nil t)
+     ("pyls.plugins.pyls_black.enabled" t t)
+     ("pyls.plugins.pyls_isort.enabled" t t)))
+  :hook
+  ((python-mode . lsp)))
+
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :bind (:map evil-normal-state-map
+	      ("gd" . lsp-ui-peek-find-definitions)
+	      ("gr" . lsp-ui-peek-find-references)))
+
+(major-mode-hydra-define emacs-lisp-mode (:title (with-mode-icon major-mode "Emacs Lisp") :quit-key "q")
   ("Eval"
    (("b" eval-buffer "buffer")
     ("e" eval-defun "defun")
@@ -445,10 +461,34 @@
     (setq yas-snippet-dirs '(yasnippet-snippets-dir)))
 
   (yas-reload-all)
-  (yas-global-mode))
+  (yas-global-mode)
+  :pretty-hydra
+       (Yasnippet (:title (with-faicon "scissors" "SNIPPETS") :quit-key "q" :color amaranth)
+	("Inserts"
+	 (("i" yas-insert-snippet "Insert a Snippet":color blue)
+	  ("a" yas-reload-all "Reload Snippets" :color blue)
+	  ("e" yas-activate-extra-mode "Extra Mode")
+	  ("d" yas-load-directory "Load a Snippet Directory")
+	  ("m" yas/minor-mode "Activate Yas Minor":toggle t)
+	  ("g" yas/global-mode "Always Use Yas":toggle t))
+	 "Manage Snippets"
+	 (("l" yas-describe-tables "List Snippets" :color blue)
+	  ("n" yas-new-snippet "Create A New Snippet")
+	  ("t" yas-tryout-snippet "Tryout A Snippet")
+	  ("s" yas-load-snippet-buffer-and-close "Load and Save New Snippet" :color blue)
+
+	  ("f" yas-visit-snippet-file "Edit Snippet File" :color blue))
+	 "Auto Snippets"
+	 (("w" aya-create "Create an Auto Snippet")
+	  ("y" aya-expand "Expand an Auto Snippet" :color blue)
+	  ("o" aya-open-line "Open Line")
+	  ("h" hydra-helm/body "Return To Helm" :color blue )
+	  ("<SPC>" nil "Exit Hydra" :color blue )))))
 
 (use-package yasnippet-snippets
-  :ensure t)
+  :ensure t
+  :after yasnippet
+  :config (yasnippet-snippets-initialize))
 
 (use-package company
   :diminish company-mode
@@ -487,3 +527,24 @@
 
 (use-package counsel-projectile
   :config (counsel-projectile-mode 1))
+
+(use-package persp-mode
+  :pin melpa)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values
+   (quote
+    ((eval add-hook
+	   (quote after-save-hook)
+	   (lambda nil
+	     (org-babel-tangle))
+	   nil t)))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

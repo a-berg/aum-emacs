@@ -1,5 +1,6 @@
 (use-package org
   :ensure t
+  ;; :pin elpa
   :config
   (setq-default org-footnote-section nil
                 org-return-follows-link t
