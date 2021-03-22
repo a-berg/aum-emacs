@@ -31,7 +31,7 @@
      (require 'use-package)
      (setq use-package-always-ensure t)
 
-     (setq user-emacs-directory "~/dotfiles/aum-emacs/modules")
+     (setq user-emacs-directory "~/code/personal/aum-emacs/modules")
      (add-to-list 'load-path user-emacs-directory)
 
      (require 'aum-functions-macros)
